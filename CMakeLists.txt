@@ -10,7 +10,7 @@ add_executable(gem_test ${SOURCES})
 
 target_compile_definitions(gem_test PRIVATE UNITTEST)
 
-add_test(gem_test transwarp_test --use-colour no)
+add_test(gem_test gem_test --use-colour no)
 
 if (MSVC)
    set(CMAKE_CXX_FLAGS "/W4 /bigobj /EHsc /wd4503 /wd4996 /wd4702")
