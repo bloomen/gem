@@ -42,16 +42,12 @@ public:
         return data_[front_];
     }
 
-    // Removes the value at the front of the buffer (the oldest value).
-    // Returns true if the front was popped off, false otherwise
-    bool pop()
+    // Removes the value at the front of the buffer (the oldest value)
+    void pop()
     {
-        if (empty()) {
-            return false;
-        } else {
+        if (!empty()) {
             data_[front_] = ValueType{};
             decrement();
-            return true;
         }
     }
 
