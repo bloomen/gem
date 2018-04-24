@@ -14,9 +14,10 @@ class circular_buffer
 {
 public:
 
-    using value_type = ValueType;
-
+    static_assert(std::is_default_constructible_v<ValueType>, "ValueType must be default constructible");
     static_assert(Size >= 1, "Size must be at least 1");
+
+    using value_type = ValueType;
 
     circular_buffer() = default;
 
