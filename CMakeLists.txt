@@ -4,17 +4,14 @@ enable_testing()
  
 include_directories(src)
 
-set(SOURCES src/test_circular_buffer.cpp src/test_main.cpp)
+set(SOURCES test/test_circular_buffer.cpp test/main.cpp)
 
 add_executable(gem_test ${SOURCES})
-
-target_compile_definitions(gem_test PRIVATE UNITTEST)
 
 add_test(gem_test gem_test --use-colour no)
 
 if (MSVC)
    set(CMAKE_CXX_FLAGS "/W4 /bigobj /EHsc /wd4503 /wd4996 /wd4702")
 else()
-   set(CMAKE_CXX_FLAGS "-std=c++11 -pedantic -Wall -Wextra -Wconversion")
-   target_link_libraries(gem_test ${CMAKE_THREAD_LIBS_INIT})
+   set(CMAKE_CXX_FLAGS "-std=c++17 -pedantic -Wall -Wextra -Wconversion")
 endif()
