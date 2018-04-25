@@ -17,6 +17,7 @@ struct data_type;
 
 class data_error : public std::runtime_error {
 public:
+    explicit
     data_error(const std::string& message) : std::runtime_error{message} {}
 };
 
@@ -35,7 +36,7 @@ public:
         return type_;
     }
 
-    std::string name() const
+    const std::string& name() const
     {
         return name_;
     }
