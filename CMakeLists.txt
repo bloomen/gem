@@ -4,7 +4,7 @@ enable_testing()
  
 include_directories(src)
 
-set(SOURCES test/test_circular_buffer.cpp test/main.cpp)
+set(SOURCES test/main.cpp test/test_circular_buffer.cpp test/test_data_value.cpp)
 
 add_executable(gem_test ${SOURCES})
 
