@@ -25,11 +25,13 @@ public:
 class data {
 public:
 
-    data(int type, std::string name)
-    : type_{type}, name_{std::move(name)}
-    {}
-
     virtual ~data() = default;
+
+    // default copy/move semantics
+    data(const data&) = default;
+    data& operator=(const data&) = default;
+    data(data&&) = default;
+    data& operator=(data&&) = default;
 
     int type() const
     {
@@ -41,7 +43,14 @@ public:
         return name_;
     }
 
+protected:
+
+    data(int type, std::string name)
+    : type_{type}, name_{std::move(name)}
+    {}
+
 private:
+
     int type_;
     std::string name_;
 };
@@ -50,7 +59,15 @@ private:
 class observer
 {
 public:
+    observer() = default;
     virtual ~observer() = default;
+
+    // default copy/move semantics
+    observer(const observer&) = default;
+    observer& operator=(const observer&) = default;
+    observer(observer&&) = default;
+    observer& operator=(observer&&) = default;
+
     virtual void on_value_changed(const std::shared_ptr<gem::data>& value) = 0;
 };
 
