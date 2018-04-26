@@ -8,6 +8,7 @@ enum class type {
 };
 
 namespace gem {
+namespace ds {
 
 template<>
 struct data_type<std::int32_t> {
@@ -36,26 +37,27 @@ struct data_type<float> {
 };
 
 }
+}
 
 TEST_CASE("value") {
-    auto value = gem::make_value("foo", 42);
+    auto value = gem::ds::make_value("foo", 42);
     REQUIRE(value->get() == 42);
     REQUIRE(value->name() == "foo");
     REQUIRE(value->type() == static_cast<int>(type::int32));
 }
 
-struct mock_observer : gem::observer {
+struct mock_observer : gem::ds::observer {
     int value_{};
     std::string name_;
-    void on_value_changed(const std::shared_ptr<gem::data>& value) override
+    void on_value_changed(const std::shared_ptr<gem::ds::data>& value) override
     {
         name_ = value->name();
-        value_ = gem::cast_value<int>(value)->get();
+        value_ = gem::ds::cast_value<int>(value)->get();
     }
 };
 
 TEST_CASE("value_observer") {
-    auto value = gem::make_value("foo", 42);
+    auto value = gem::ds::make_value("foo", 42);
     auto observer = std::make_shared<mock_observer>();
     value->add_observer(observer);
     value->set(43);
@@ -64,15 +66,15 @@ TEST_CASE("value_observer") {
 }
 
 TEST_CASE("to_string") {
-    auto value = gem::make_value("foo", 42);
-    const auto serialized = gem::to_string(value);
+    auto value = gem::ds::make_value("foo", 42);
+    const auto serialized = gem::ds::to_string(value);
     const std::string expected = "0|foo|42";
     REQUIRE(expected == serialized);
 }
 
 TEST_CASE("from_string") {
     const std::string serialized = "0|foo|42";
-    auto value = gem::from_string<int>(serialized);
+    auto value = gem::ds::from_string<int>(serialized);
     REQUIRE(value->get() == 42);
     REQUIRE(value->name() == "foo");
     REQUIRE(value->type() == static_cast<int>(type::int32));
