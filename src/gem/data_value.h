@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <sstream>
 #include <stdexcept>
+#include <optional>
 
 
 namespace gem {
@@ -102,6 +103,11 @@ public:
 
     using value_type = ValueType;
 
+    explicit
+    value(std::string name)
+    : gem::ds::data{gem::ds::data_type<ValueType>::value, std::move(name)}
+    {}
+
     template<typename T, typename = std::enable_if_t<std::is_same_v<std::decay_t<T>, value_type>>>
     value(std::string name, T&& value)
     : gem::ds::data{gem::ds::data_type<ValueType>::value, std::move(name)}
@@ -115,14 +121,21 @@ public:
         data_changed();
     }
 
-    const ValueType& get() const
+    const std::optional<ValueType>& get() const
     {
         return value_;
     }
 
 private:
-    ValueType value_;
+    std::optional<ValueType> value_;
 };
+
+
+template<typename ValueType>
+std::shared_ptr<gem::ds::value<std::decay_t<ValueType>>> make_value(std::string name)
+{
+    return std::make_shared<gem::ds::value<std::decay_t<ValueType>>>(std::move(name));
+}
 
 
 template<typename ValueType>
@@ -152,9 +165,11 @@ std::string to_string(const std::shared_ptr<gem::ds::value<ValueType>>& value, c
     if (data_type<ValueType>::value != value->type()) {
         throw gem::ds::data_error{"ValueType does not match value's data type"};
     }
-    return std::to_string(value->type()) + std::string(1, delim)
-           + value->name() + std::string(1, delim)
-           + gem::ds::data_type<ValueType>::to_string(value->get());
+    auto serialized = std::to_string(value->type()) + std::string(1, delim) + value->name();
+    if (value->get()) {
+        serialized += std::string(1, delim) + gem::ds::data_type<ValueType>::to_string(*value->get());
+    }
+    return serialized;
 }
 
 
@@ -167,10 +182,12 @@ std::shared_ptr<gem::ds::value<ValueType>> from_string(const std::string& data, 
     while (std::getline(ss, item, delim)) {
         tokens.push_back(item);
     }
-    if (tokens.size() != 3) {
-        throw gem::ds::data_error{"Expect exactly three elements in string"};
+    if (tokens.size() != 2 && tokens.size() != 3) {
+        throw gem::ds::data_error{"Expect either two or three elements in string"};
     }
-    auto value = gem::ds::make_value(tokens[1], gem::ds::data_type<ValueType>::from_string(tokens[2]));
+    auto value = tokens.size() == 2 ?
+                 gem::ds::make_value<ValueType>(tokens[1]) :
+                 gem::ds::make_value(tokens[1], gem::ds::data_type<ValueType>::from_string(tokens[2]));
     if (std::atoi(tokens[0].c_str()) != value->type()) {
         throw gem::ds::data_error{"ValueType does not match data type found in string"};
     }

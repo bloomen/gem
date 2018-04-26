@@ -41,7 +41,7 @@ struct data_type<float> {
 
 TEST_CASE("value") {
     auto value = gem::ds::make_value("foo", 42);
-    REQUIRE(value->get() == 42);
+    REQUIRE(*value->get() == 42);
     REQUIRE(value->name() == "foo");
     REQUIRE(value->type() == static_cast<int>(type::int32));
 }
@@ -52,7 +52,7 @@ struct mock_observer : gem::ds::observer {
     void on_value_changed(const std::shared_ptr<gem::ds::data>& value) override
     {
         name_ = value->name();
-        value_ = gem::ds::cast_value<int>(value)->get();
+        value_ = *gem::ds::cast_value<int>(value)->get();
     }
 };
 
@@ -72,10 +72,25 @@ TEST_CASE("to_string") {
     REQUIRE(expected == serialized);
 }
 
+TEST_CASE("to_string_with_null_value") {
+    auto value = gem::ds::make_value<int>("foo");
+    const auto serialized = gem::ds::to_string(value);
+    const std::string expected = "0|foo";
+    REQUIRE(expected == serialized);
+}
+
 TEST_CASE("from_string") {
     const std::string serialized = "0|foo|42";
     auto value = gem::ds::from_string<int>(serialized);
-    REQUIRE(value->get() == 42);
+    REQUIRE(*value->get() == 42);
+    REQUIRE(value->name() == "foo");
+    REQUIRE(value->type() == static_cast<int>(type::int32));
+}
+
+TEST_CASE("from_string_with_null_value") {
+    const std::string serialized = "0|foo";
+    auto value = gem::ds::from_string<int>(serialized);
+    REQUIRE_FALSE(value->get());
     REQUIRE(value->name() == "foo");
     REQUIRE(value->type() == static_cast<int>(type::int32));
 }
