@@ -1,5 +1,6 @@
+#include <gem/datastore.h>
+
 #include "catch.hpp"
-#include <gem/data_value.h>
 
 
 enum class type {
@@ -96,9 +97,9 @@ TEST_CASE("from_string_with_null_value") {
 }
 
 TEST_CASE("use_multiple_values") {
-    GEM_VALUE(foo, 42);
-    GEM_VALUE(bar, 13.3f);
-    GEM_VALUE(albert, 17);
+    GEMDS_VALUE(foo, 42);
+    GEMDS_VALUE(bar, 13.3f);
+    GEMDS_VALUE(albert, 17);
     REQUIRE(foo->get() == 42);
     REQUIRE(bar->get() == 13.3f);
     REQUIRE(albert->get() == 17);

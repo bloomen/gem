@@ -199,5 +199,5 @@ std::shared_ptr<gem::ds::value<ValueType>> from_string(const std::string& data, 
 } // gem
 
 
-#define GEM_VALUE(name, value) \
+#define GEMDS_VALUE(name, value) \
 auto name = gem::ds::make_value(#name, value)
