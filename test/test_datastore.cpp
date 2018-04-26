@@ -50,7 +50,7 @@ TEST_CASE("value") {
 struct mock_observer : gem::ds::observer {
     int value_{};
     std::string name_;
-    void on_value_changed(const std::shared_ptr<gem::ds::data>& value) override
+    void on_data_changed(const std::shared_ptr<gem::ds::data>& value) override
     {
         name_ = value->name();
         value_ = *gem::ds::cast_value<int>(value)->get();

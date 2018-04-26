@@ -41,7 +41,7 @@ public:
     observer(observer&&) = default;
     observer& operator=(observer&&) = default;
 
-    virtual void on_value_changed(const std::shared_ptr<gem::ds::data>& value) = 0;
+    virtual void on_data_changed(const std::shared_ptr<gem::ds::data>& value) = 0;
 };
 
 
@@ -83,7 +83,7 @@ protected:
         for (auto observer : observers_) {
             auto obs = observer.lock();
             if (obs) {
-                obs->on_value_changed(this->shared_from_this());
+                obs->on_data_changed(this->shared_from_this());
             }
         }
     }
@@ -160,21 +160,21 @@ std::shared_ptr<gem::ds::value<ValueType>> cast_value(std::shared_ptr<data> valu
 
 
 template<typename ValueType>
-std::string to_string(const std::shared_ptr<gem::ds::value<ValueType>>& value, char delim='|')
+std::string to_string(const std::shared_ptr<gem::ds::value<ValueType>>& value, const char delim='|')
 {
     if (data_type<ValueType>::value != value->type()) {
         throw gem::ds::data_error{"ValueType does not match value's data type"};
     }
-    auto serialized = std::to_string(value->type()) + std::string(1, delim) + value->name();
+    auto str = std::to_string(value->type()) + std::string(1, delim) + value->name();
     if (value->get()) {
-        serialized += std::string(1, delim) + gem::ds::data_type<ValueType>::to_string(*value->get());
+        str += std::string(1, delim) + gem::ds::data_type<ValueType>::to_string(*value->get());
     }
-    return serialized;
+    return str;
 }
 
 
 template<typename ValueType>
-std::shared_ptr<gem::ds::value<ValueType>> from_string(const std::string& data, char delim='|')
+std::shared_ptr<gem::ds::value<ValueType>> from_string(const std::string& data, const char delim='|')
 {
     std::stringstream ss(data);
     std::string item;
