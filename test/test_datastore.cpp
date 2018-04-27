@@ -13,7 +13,7 @@ namespace ds {
 
 template<>
 struct data_type<std::int32_t> {
-    static constexpr int value = static_cast<int>(type::int32);
+    static constexpr int type_index = static_cast<int>(type::int32);
     static std::string to_string(int value)
     {
         return std::to_string(value);
@@ -26,7 +26,7 @@ struct data_type<std::int32_t> {
 
 template<>
 struct data_type<float> {
-    static constexpr int value = static_cast<int>(type::real32);
+    static constexpr int type_index = static_cast<int>(type::real32);
     static std::string to_string(float value)
     {
         return std::to_string(value);

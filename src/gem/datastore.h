@@ -113,12 +113,12 @@ public:
 
     explicit
     value(std::string name)
-    : gem::ds::data{gem::ds::data_type<ValueType>::value, std::move(name)}
+    : gem::ds::data{gem::ds::data_type<ValueType>::type_index, std::move(name)}
     {}
 
     template<typename T, typename = std::enable_if_t<std::is_same_v<std::decay_t<T>, value_type>>>
     value(std::string name, T&& value)
-    : gem::ds::data{gem::ds::data_type<ValueType>::value, std::move(name)}
+    : gem::ds::data{gem::ds::data_type<ValueType>::type_index, std::move(name)}
     , value_{std::forward<T>(value)}
     {}
 
@@ -161,7 +161,7 @@ std::shared_ptr<gem::ds::value<std::decay_t<ValueType>>> make_value(std::string 
 template<typename ValueType>
 std::shared_ptr<gem::ds::value<ValueType>> cast_value(std::shared_ptr<data> value)
 {
-    if (data_type<ValueType>::value != value->type()) {
+    if (data_type<ValueType>::type_index != value->type()) {
         throw gem::ds::data_error{"Bad cast: ValueType does not fit value's data type"};
     }
     auto casted = std::dynamic_pointer_cast<gem::ds::value<ValueType>>(value);
@@ -175,7 +175,7 @@ std::shared_ptr<gem::ds::value<ValueType>> cast_value(std::shared_ptr<data> valu
 template<typename ValueType>
 std::string to_string(const std::shared_ptr<gem::ds::value<ValueType>>& value, const char delim='|')
 {
-    if (data_type<ValueType>::value != value->type()) {
+    if (data_type<ValueType>::type_index != value->type()) {
         throw gem::ds::data_error{"ValueType does not match value's data type"};
     }
     auto str = std::to_string(value->type()) + std::string(1, delim) + value->name();
