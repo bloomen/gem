@@ -6,6 +6,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <optional>
+#include <shared_mutex>
 
 
 namespace gem {
@@ -69,6 +70,7 @@ public:
 
     void add_observer(std::weak_ptr<gem::ds::observer> observer)
     {
+        std::lock_guard lock{mutex_};
         observers_.push_back(std::move(observer));
     }
 
@@ -80,7 +82,12 @@ protected:
 
     void data_changed()
     {
-        for (auto observer : observers_) {
+        decltype(observers_) observers;
+        {
+            std::shared_lock lock{mutex_};
+            observers = observers_;
+        }
+        for (const auto& observer : observers) {
             auto obs = observer.lock();
             if (obs) {
                 obs->on_data_changed(this->shared_from_this());
@@ -93,6 +100,7 @@ private:
     int type_;
     std::string name_;
     std::vector<std::weak_ptr<gem::ds::observer>> observers_;
+    mutable std::shared_mutex mutex_;
 };
 
 
@@ -117,17 +125,22 @@ public:
     template<typename T, typename = std::enable_if_t<std::is_same_v<std::decay_t<T>, value_type>>>
     void set(T&& value)
     {
-        value_ = std::forward<T>(value);
+        {
+            std::lock_guard lock{mutex_};
+            value_ = std::forward<T>(value);
+        }
         data_changed();
     }
 
     const std::optional<ValueType>& get() const
     {
+        std::shared_lock lock{mutex_};
         return value_;
     }
 
 private:
     std::optional<ValueType> value_;
+    mutable std::shared_mutex mutex_;
 };
 
 
