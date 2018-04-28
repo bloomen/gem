@@ -64,6 +64,10 @@ TEST_CASE("value_observer") {
     value->set(43);
     REQUIRE(43 == observer->value_);
     REQUIRE("foo" == observer->name_);
+    value->remove_observer(observer);
+    value->set(45);
+    REQUIRE(43 == observer->value_);
+    REQUIRE("foo" == observer->name_);
 }
 
 TEST_CASE("to_string") {

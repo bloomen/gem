@@ -1,12 +1,15 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <list>
 #include <vector>
 #include <type_traits>
 #include <sstream>
 #include <stdexcept>
 #include <optional>
 #include <shared_mutex>
+#include <algorithm>
+#include <mutex>
 
 
 namespace gem {
@@ -74,6 +77,25 @@ public:
         observers_.push_back(std::move(observer));
     }
 
+    void remove_observer(const std::weak_ptr<gem::ds::observer>& observer)
+    {
+        if (auto obs = observer.lock()) {
+            std::lock_guard lock{obs_mutex_};
+            const auto it = std::find_if(observers_.cbegin(), observers_.cend(),
+                [&obs](const auto& x) {
+                    if (auto xobs = x.lock()) {
+                        if (obs == xobs) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            if (it != observers_.cend()) {
+                observers_.erase(it);
+            }
+        }
+    }
+
 protected:
 
     data(int type, std::string name)
@@ -82,24 +104,37 @@ protected:
 
     void data_changed()
     {
-        decltype(observers_) observers;
-        {
-            std::shared_lock lock{obs_mutex_};
-            observers = observers_;
-        }
-        for (const auto& observer : observers) {
-            auto obs = observer.lock();
-            if (obs) {
+        for (const auto& observer : copy_observers()) {
+            if (auto obs = observer.lock()) {
                 obs->on_data_changed(this->shared_from_this());
             }
         }
+        take_out_trash();
     }
 
 private:
 
+    std::list<std::weak_ptr<gem::ds::observer>> copy_observers() const
+    {
+        std::shared_lock lock{obs_mutex_};
+        return observers_;
+    }
+
+    void take_out_trash()
+    {
+        std::lock_guard lock{obs_mutex_};
+        for (auto it=observers_.cbegin(); it!=observers_.cend();) {
+            if (it->expired()) {
+                observers_.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+
     int type_;
     std::string name_;
-    std::vector<std::weak_ptr<gem::ds::observer>> observers_;
+    std::list<std::weak_ptr<gem::ds::observer>> observers_;
     mutable std::shared_mutex obs_mutex_;
 };
 
