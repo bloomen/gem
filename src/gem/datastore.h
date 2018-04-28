@@ -70,7 +70,7 @@ public:
 
     void add_observer(std::weak_ptr<gem::ds::observer> observer)
     {
-        std::lock_guard lock{mutex_};
+        std::lock_guard lock{obs_mutex_};
         observers_.push_back(std::move(observer));
     }
 
@@ -84,7 +84,7 @@ protected:
     {
         decltype(observers_) observers;
         {
-            std::shared_lock lock{mutex_};
+            std::shared_lock lock{obs_mutex_};
             observers = observers_;
         }
         for (const auto& observer : observers) {
@@ -100,7 +100,7 @@ private:
     int type_;
     std::string name_;
     std::vector<std::weak_ptr<gem::ds::observer>> observers_;
-    mutable std::shared_mutex mutex_;
+    mutable std::shared_mutex obs_mutex_;
 };
 
 
@@ -126,7 +126,7 @@ public:
     void set(T&& value)
     {
         {
-            std::lock_guard lock{mutex_};
+            std::lock_guard lock{val_mutex_};
             value_ = std::forward<T>(value);
         }
         data_changed();
@@ -134,13 +134,13 @@ public:
 
     const std::optional<ValueType>& get() const
     {
-        std::shared_lock lock{mutex_};
+        std::shared_lock lock{val_mutex_};
         return value_;
     }
 
 private:
     std::optional<ValueType> value_;
-    mutable std::shared_mutex mutex_;
+    mutable std::shared_mutex val_mutex_;
 };
 
 
