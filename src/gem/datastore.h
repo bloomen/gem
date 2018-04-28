@@ -8,8 +8,6 @@
 #include <stdexcept>
 #include <optional>
 #include <shared_mutex>
-#include <algorithm>
-#include <mutex>
 
 
 namespace gem {
