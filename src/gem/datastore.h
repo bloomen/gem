@@ -82,14 +82,14 @@ public:
         if (auto obs = observer.lock()) {
             std::lock_guard lock{obs_mutex_};
             const auto it = std::find_if(observers_.cbegin(), observers_.cend(),
-                [&obs](const auto& x) {
-                    if (auto xobs = x.lock()) {
-                        if (obs == xobs) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
+                                        [&obs](const auto& x) {
+                                            if (auto xobs = x.lock()) {
+                                                if (obs == xobs) {
+                                                    return true;
+                                                }
+                                            }
+                                            return false;
+                                        });
             if (it != observers_.cend()) {
                 observers_.erase(it);
             }
