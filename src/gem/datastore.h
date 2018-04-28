@@ -79,19 +79,15 @@ public:
 
     void remove_observer(const std::weak_ptr<gem::ds::observer>& observer)
     {
-        if (auto obs = observer.lock()) {
+        if (const auto obs = observer.lock()) {
             std::lock_guard lock{obs_mutex_};
-            const auto it = std::find_if(observers_.cbegin(), observers_.cend(),
-                                        [&obs](const auto& x) {
-                                            if (auto xobs = x.lock()) {
-                                                if (obs == xobs) {
-                                                    return true;
-                                                }
-                                            }
-                                            return false;
-                                        });
-            if (it != observers_.cend()) {
-                observers_.erase(it);
+            for (auto it=observers_.cbegin(); it!=observers_.cend();) {
+                const auto obs_it = it->lock();
+                if (obs_it && obs_it == obs) {
+                    it = observers_.erase(it);
+                } else {
+                    ++it;
+                }
             }
         }
     }
@@ -104,7 +100,12 @@ protected:
 
     void data_changed()
     {
-        for (const auto& observer : copy_observers()) {
+        decltype(observers_) observers;
+        {
+            std::shared_lock lock{obs_mutex_};
+            observers = observers_;
+        }
+        for (const auto& observer : observers) {
             if (auto obs = observer.lock()) {
                 obs->on_data_changed(this->shared_from_this());
             }
@@ -114,18 +115,12 @@ protected:
 
 private:
 
-    std::list<std::weak_ptr<gem::ds::observer>> copy_observers() const
-    {
-        std::shared_lock lock{obs_mutex_};
-        return observers_;
-    }
-
     void take_out_trash()
     {
         std::lock_guard lock{obs_mutex_};
         for (auto it=observers_.cbegin(); it!=observers_.cend();) {
             if (it->expired()) {
-                observers_.erase(it);
+                it = observers_.erase(it);
             } else {
                 ++it;
             }
