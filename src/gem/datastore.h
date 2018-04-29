@@ -128,7 +128,7 @@ private:
     int type_;
     std::string name_;
     std::list<std::weak_ptr<gem::ds::observer>> observers_;
-    mutable std::shared_mutex obs_mutex_;
+    std::shared_mutex obs_mutex_;
 };
 
 
