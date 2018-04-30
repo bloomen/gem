@@ -229,7 +229,7 @@ std::shared_ptr<gem::ds::value<ValueType>> from_string(const std::string& data, 
     auto value = tokens.size() == 2 ?
                  gem::ds::make_value<ValueType>(tokens[1]) :
                  gem::ds::make_value(tokens[1], gem::ds::data_type<ValueType>::from_string(tokens[2]));
-    if (std::atoi(tokens[0].c_str()) != value->type()) {
+    if (std::stoi(tokens[0]) != value->type()) {
         throw gem::ds::data_error{"ValueType does not match data type found in string"};
     }
     return value;

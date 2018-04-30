@@ -20,7 +20,7 @@ struct data_type<std::int32_t> {
     }
     static int from_string(const std::string& data)
     {
-        return std::atoi(data.c_str());
+        return std::stoi(data);
     }
 };
 
@@ -33,7 +33,7 @@ struct data_type<float> {
     }
     static float from_string(const std::string& data)
     {
-        return static_cast<float>(std::atof(data.c_str()));
+        return static_cast<float>(std::stof(data));
     }
 };
 
