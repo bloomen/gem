@@ -141,7 +141,7 @@ public:
 
     explicit
     value(std::string name)
-    : gem::ds::data{gem::ds::data_type<ValueType>::type_index, std::move(name)}
+    : gem::ds::data{gem::ds::data_type<value_type>::type_index, std::move(name)}
     {}
 
     template<typename T, typename = std::enable_if_t<std::is_same_v<std::decay_t<T>, value_type>>>
@@ -160,14 +160,14 @@ public:
         data_changed();
     }
 
-    const std::optional<ValueType>& get() const
+    const std::optional<value_type>& get() const
     {
         std::shared_lock lock{val_mutex_};
         return value_;
     }
 
 private:
-    std::optional<ValueType> value_;
+    std::optional<value_type> value_;
     mutable std::shared_mutex val_mutex_;
 };
 
