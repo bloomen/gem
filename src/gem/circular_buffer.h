@@ -47,7 +47,7 @@ public:
     void pop()
     {
         if (!empty()) {
-            data_[front_] = ValueType{};
+            data_[front_].~ValueType();
             decrement();
         }
     }
