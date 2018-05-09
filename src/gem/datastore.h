@@ -34,14 +34,7 @@ class data;
 class observer
 {
 public:
-    observer() = default;
     virtual ~observer() = default;
-
-    // default copy/move semantics
-    observer(const observer&) = default;
-    observer& operator=(const observer&) = default;
-    observer(observer&&) = default;
-    observer& operator=(observer&&) = default;
 
     virtual void on_data_changed(const std::shared_ptr<gem::ds::data>& value) = 0;
 };
