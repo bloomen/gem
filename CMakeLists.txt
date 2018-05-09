@@ -4,7 +4,12 @@ enable_testing()
  
 include_directories(src)
 
-set(SOURCES test/main.cpp test/test_circular_buffer.cpp test/test_datastore.cpp)
+set(SOURCES
+	test/main.cpp
+	test/test_circular_buffer.cpp
+	test/test_datastore.cpp
+	test/test_hashmap.cpp
+	)
 
 find_package(Threads)
 
