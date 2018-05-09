@@ -1,6 +1,7 @@
 #pragma once
 #include <type_traits>
 #include <cstddef>
+#include <array>
 
 
 namespace gem {
@@ -107,7 +108,7 @@ private:
     std::size_t end_{};
     std::size_t front_{};
     std::size_t populated_{};
-    value_type data_[Size];
+    std::array<value_type, Size> data_;
 };
 
 
