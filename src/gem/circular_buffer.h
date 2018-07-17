@@ -10,13 +10,13 @@ namespace gem {
 // A simple circular buffer with a size fixed at compile time.
 // ValueType must support default construction. The buffer lets you push
 // new values onto the back and pop old values off the front.
-template<typename ValueType, std::size_t Size>
+template<typename ValueType, std::size_t Capacity>
 class circular_buffer
 {
 public:
 
     static_assert(std::is_default_constructible_v<ValueType>, "ValueType must be default constructible");
-    static_assert(Size >= 1, "Size must be at least 1");
+    static_assert(Capacity >= 1, "Size must be at least 1");
 
     using value_type = ValueType;
 
@@ -54,35 +54,35 @@ public:
     }
 
     // Returns the size of the buffer
-    static constexpr std::size_t size()
+    static constexpr std::size_t capacity()
     {
-        return Size;
+        return Capacity;
     }
 
     // Returns the number of populated values of the buffer. Its maximum value
     // equals the size of the buffer
-    std::size_t populated() const
+    std::size_t size() const
     {
-        return populated_;
+        return size_;
     }
 
     // Returns whether the buffer is empty
     bool empty() const
     {
-        return populated_ == 0;
+        return size_ == 0;
     }
 
     // Returns whether the buffer is full
     bool full() const
     {
-        return populated_ == Size;
+        return size_ == Capacity;
     }
 
 private:
 
     void increment_or_wrap(std::size_t& value) const
     {
-        if (value == Size - 1) {
+        if (value == Capacity - 1) {
             value = 0;
         } else {
             ++value;
@@ -95,20 +95,20 @@ private:
         if (full()) {
             increment_or_wrap(front_);
         } else {
-            ++populated_;
+            ++size_;
         }
     }
 
     void decrement()
     {
         increment_or_wrap(front_);
-        --populated_;
+        --size_;
     }
 
     std::size_t end_{};
     std::size_t front_{};
-    std::size_t populated_{};
-    std::array<value_type, Size> data_;
+    std::size_t size_{};
+    std::array<value_type, Capacity> data_;
 };
 
 
