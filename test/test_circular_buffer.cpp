@@ -211,7 +211,7 @@ TEST_CASE("circular_buffer__swap") {
     buffer2.push(41);
     buffer2.push(42);
     REQUIRE(2 == buffer2.size());
-    buffer1.swap(buffer2);
+    std::swap(buffer1, buffer2);
     REQUIRE(2 == buffer1.size());
     REQUIRE(3 == buffer2.size());
     REQUIRE(41 == buffer1.front()); buffer1.pop();
@@ -244,4 +244,13 @@ TEST_CASE("circular_buffer__is_not_equal") {
     buffer2.push(1);
     REQUIRE(buffer1 != buffer3);
     REQUIRE(buffer2 != buffer3);
+}
+
+TEST_CASE("circular_buffer__front_non_const_overload") {
+    circular_buffer<int, 3> buffer1;
+    buffer1.push(1);
+    REQUIRE(1 == buffer1.front());
+    buffer1.front() = 42;
+    REQUIRE(42 == buffer1.front());
+    REQUIRE(1 == buffer1.size());
 }

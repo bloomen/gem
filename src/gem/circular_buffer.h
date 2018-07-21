@@ -1,5 +1,4 @@
 #pragma once
-#include <array>
 #include <cstddef>
 #include <type_traits>
 #include <utility>
@@ -17,20 +16,25 @@ class circular_buffer
 public:
 
     static_assert(std::is_default_constructible_v<ValueType>, "ValueType must be default constructible");
-    static_assert(Capacity >= 1, "Size must be at least 1");
+    static_assert(Capacity >= 1, "Capacity must be at least 1");
 
+    using container_type = circular_buffer;
     using value_type = ValueType;
+    using size_type = std::size_t;
+    using reference = value_type&;
+    using const_reference = const value_type&;
 
-    circular_buffer() = default;
+    circular_buffer() noexcept(std::is_nothrow_constructible_v<value_type>) = default;
+    ~circular_buffer() noexcept(std::is_nothrow_destructible_v<value_type>) = default;
 
     // Default copy/move semantics
-    circular_buffer(const circular_buffer&) = default;
-    circular_buffer& operator=(const circular_buffer&) = default;
-    circular_buffer(circular_buffer&&) = default;
-    circular_buffer& operator=(circular_buffer&&) = default;
+    circular_buffer(const circular_buffer&) noexcept(std::is_nothrow_copy_constructible_v<value_type>) = default;
+    circular_buffer& operator=(const circular_buffer&) noexcept(std::is_nothrow_copy_assignable_v<value_type>) = default;
+    circular_buffer(circular_buffer&&) noexcept(std::is_nothrow_move_constructible_v<value_type>) = default;
+    circular_buffer& operator=(circular_buffer&&) noexcept(std::is_nothrow_move_assignable_v<value_type>) = default;
 
     // Equals operator
-    bool operator==(const circular_buffer& other) const
+    bool operator==(const circular_buffer& other) const noexcept(noexcept(std::declval<value_type>() == std::declval<value_type>()))
     {
         if (this != &other) {
             if (size_ != other.size_) {
@@ -51,7 +55,7 @@ public:
     }
 
     // Not-equals operator
-    bool operator!=(const circular_buffer& other) const
+    bool operator!=(const circular_buffer& other) const noexcept(noexcept(std::declval<value_type>() == std::declval<value_type>()))
     {
         return !(*this == other);
     }
@@ -67,29 +71,36 @@ public:
 
     // Returns the value at the front of the buffer (the oldest value).
     // This is undefined if the buffer is empty
-    const value_type& front() const noexcept
+    reference front() noexcept
+    {
+        return data_[front_];
+    }
+
+    // Returns the value at the front of the buffer (the oldest value).
+    // This is undefined if the buffer is empty
+    const_reference front() const noexcept
     {
         return data_[front_];
     }
 
     // Removes the value at the front of the buffer (the oldest value)
-    void pop()
+    void pop() noexcept(std::is_nothrow_constructible_v<value_type> && std::is_nothrow_destructible_v<value_type>)
     {
         if (!empty()) {
-            data_[front_] = ValueType{};
+            data_[front_] = value_type{};
             decrement();
         }
     }
 
     // Returns the size of the buffer
-    static constexpr std::size_t capacity() noexcept
+    static constexpr size_type capacity() noexcept
     {
         return Capacity;
     }
 
     // Returns the number of populated values of the buffer. Its maximum value
     // equals the size of the buffer
-    std::size_t size() const noexcept
+    size_type size() const noexcept
     {
         return size_;
     }
@@ -107,7 +118,8 @@ public:
     }
 
     // Swaps this buffer with the given buffer
-    void swap(circular_buffer& other)
+    template<typename = std::enable_if_t<std::is_swappable_v<value_type>>>
+    void swap(circular_buffer& other) noexcept(std::is_nothrow_swappable_v<value_type>)
     {
         std::swap(end_, other.end_);
         std::swap(front_, other.front_);
@@ -117,7 +129,7 @@ public:
 
 private:
 
-    void increment_or_wrap(std::size_t& value) const
+    void increment_or_wrap(size_type& value) const noexcept
     {
         if (value == Capacity - 1) {
             value = 0;
@@ -126,7 +138,7 @@ private:
         }
     }
 
-    void increment()
+    void increment() noexcept
     {
         increment_or_wrap(end_);
         if (full()) {
@@ -136,17 +148,29 @@ private:
         }
     }
 
-    void decrement()
+    void decrement() noexcept
     {
         increment_or_wrap(front_);
         --size_;
     }
 
-    std::size_t end_{};
-    std::size_t front_{};
-    std::size_t size_{};
-    std::array<value_type, Capacity> data_;
+    size_type end_{};
+    size_type front_{};
+    size_type size_{};
+    value_type data_[Capacity];
 };
 
 
 } // gem
+
+
+namespace std {
+
+template<typename ValueType, std::size_t Capacity>
+void swap(gem::circular_buffer<ValueType, Capacity>& lhs,
+          gem::circular_buffer<ValueType, Capacity>& rhs) noexcept(std::is_nothrow_swappable_v<gem::circular_buffer<ValueType, Capacity>>)
+{
+    lhs.swap(rhs);
+}
+
+} // std
