@@ -1,13 +1,14 @@
 #pragma once
-#include <type_traits>
-#include <cstddef>
 #include <array>
+#include <cstddef>
+#include <type_traits>
+#include <utility>
 
 
 namespace gem {
 
 
-// A simple circular buffer with a size fixed at compile time.
+// A simple circular buffer with a capacity fixed at compile time.
 // ValueType must support default construction. The buffer lets you push
 // new values onto the back and pop old values off the front.
 template<typename ValueType, std::size_t Capacity>
@@ -22,11 +23,38 @@ public:
 
     circular_buffer() = default;
 
-    // default copy/move semantics
+    // Default copy/move semantics
     circular_buffer(const circular_buffer&) = default;
     circular_buffer& operator=(const circular_buffer&) = default;
     circular_buffer(circular_buffer&&) = default;
     circular_buffer& operator=(circular_buffer&&) = default;
+
+    // Equals operator
+    bool operator==(const circular_buffer& other) const
+    {
+        if (this != &other) {
+            if (size_ != other.size_) {
+                return false;
+            }
+            auto front = front_;
+            auto size = size_;
+            while (size != 0) {
+                if (!(data_[front] == other.data_[front])) {
+                    return false;
+                }
+                increment_or_wrap(front);
+                --size;
+            }
+            return true;
+        }
+        return true;
+    }
+
+    // Not-equals operator
+    bool operator!=(const circular_buffer& other) const
+    {
+        return !(*this == other);
+    }
 
     // Pushes a new value onto the end of the buffer. If that exceeds the size
     // of the buffer then the oldest value gets dropped (the one at the front).
@@ -39,7 +67,7 @@ public:
 
     // Returns the value at the front of the buffer (the oldest value).
     // This is undefined if the buffer is empty
-    const value_type& front() const
+    const value_type& front() const noexcept
     {
         return data_[front_];
     }
@@ -54,28 +82,37 @@ public:
     }
 
     // Returns the size of the buffer
-    static constexpr std::size_t capacity()
+    static constexpr std::size_t capacity() noexcept
     {
         return Capacity;
     }
 
     // Returns the number of populated values of the buffer. Its maximum value
     // equals the size of the buffer
-    std::size_t size() const
+    std::size_t size() const noexcept
     {
         return size_;
     }
 
     // Returns whether the buffer is empty
-    bool empty() const
+    bool empty() const noexcept
     {
         return size_ == 0;
     }
 
     // Returns whether the buffer is full
-    bool full() const
+    bool full() const noexcept
     {
         return size_ == Capacity;
+    }
+
+    // Swaps this buffer with the given buffer
+    void swap(circular_buffer& other)
+    {
+        std::swap(end_, other.end_);
+        std::swap(front_, other.front_);
+        std::swap(size_, other.size_);
+        std::swap(data_, other.data_);
     }
 
 private:

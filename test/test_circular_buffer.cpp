@@ -200,3 +200,48 @@ TEST_CASE("circular_buffer__buffer_of_capacity_three_push_and_pop_guanpath") {
 
     REQUIRE(value10 == buffer.front());
 }
+
+TEST_CASE("circular_buffer__swap") {
+    circular_buffer<int, 3> buffer1;
+    buffer1.push(1);
+    buffer1.push(2);
+    buffer1.push(3);
+    REQUIRE(3 == buffer1.size());
+    circular_buffer<int, 3> buffer2;
+    buffer2.push(41);
+    buffer2.push(42);
+    REQUIRE(2 == buffer2.size());
+    buffer1.swap(buffer2);
+    REQUIRE(2 == buffer1.size());
+    REQUIRE(3 == buffer2.size());
+    REQUIRE(41 == buffer1.front()); buffer1.pop();
+    REQUIRE(42 == buffer1.front()); buffer1.pop();
+    REQUIRE(1 == buffer2.front()); buffer2.pop();
+    REQUIRE(2 == buffer2.front()); buffer2.pop();
+    REQUIRE(3 == buffer2.front()); buffer2.pop();
+}
+
+TEST_CASE("circular_buffer__is_equal") {
+    circular_buffer<int, 3> buffer1;
+    buffer1.push(1);
+    buffer1.push(2);
+    REQUIRE(buffer1 == buffer1);
+    circular_buffer<int, 3> buffer2;
+    buffer2.push(1);
+    buffer2.push(2);
+    REQUIRE(buffer2 == buffer2);
+}
+
+TEST_CASE("circular_buffer__is_not_equal") {
+    circular_buffer<int, 3> buffer1;
+    buffer1.push(1);
+    buffer1.push(2);
+    circular_buffer<int, 3> buffer2;
+    buffer2.push(1);
+    buffer2.push(13);
+    REQUIRE(buffer1 != buffer2);
+    circular_buffer<int, 3> buffer3;
+    buffer2.push(1);
+    REQUIRE(buffer1 != buffer3);
+    REQUIRE(buffer2 != buffer3);
+}
