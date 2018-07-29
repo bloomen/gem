@@ -7,7 +7,7 @@
 namespace gem {
 
 
-// A simple circular buffer with a capacity fixed at compile time.
+// A simple circular buffer (FIFO) with a capacity fixed at compile time.
 // ValueType must support default construction. The buffer lets you push
 // new values onto the back and pop old values off the front.
 template<typename ValueType, std::size_t Capacity>
