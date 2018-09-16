@@ -9,6 +9,7 @@ set(SOURCES
 	test/test_circular_buffer.cpp
 	test/test_datastore.cpp
 	test/test_hashmap.cpp
+	test/test_memory_manager.cpp
 	)
 
 find_package(Threads)
