@@ -92,7 +92,7 @@ public:
         }
     }
 
-    // Returns the size of the buffer
+    // Returns the capacity of the buffer
     static constexpr size_type capacity() noexcept
     {
         return Capacity;
@@ -166,9 +166,9 @@ private:
 
 namespace std {
 
-template<typename ValueType, std::size_t Capacity>
+template<typename ValueType, std::size_t Capacity, typename = std::enable_if_t<std::is_swappable_v<ValueType>>>
 void swap(gem::circular_buffer<ValueType, Capacity>& lhs,
-          gem::circular_buffer<ValueType, Capacity>& rhs) noexcept(std::is_nothrow_swappable_v<gem::circular_buffer<ValueType, Capacity>>)
+          gem::circular_buffer<ValueType, Capacity>& rhs) noexcept(std::is_nothrow_swappable_v<ValueType>)
 {
     lhs.swap(rhs);
 }
