@@ -60,7 +60,7 @@ public:
         return !(*this == other);
     }
 
-    // Pushes a new value onto the end of the buffer. If that exceeds the size
+    // Pushes a new value onto the end of the buffer. If that exceeds the capacity
     // of the buffer then the oldest value gets dropped (the one at the front).
     template<typename T, typename = std::enable_if_t<std::is_same_v<std::decay_t<T>, value_type>>>
     void push(T&& value)
@@ -99,7 +99,7 @@ public:
     }
 
     // Returns the number of populated values of the buffer. Its maximum value
-    // equals the size of the buffer
+    // equals the capacity of the buffer
     size_type size() const noexcept
     {
         return size_;
