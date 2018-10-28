@@ -5,11 +5,18 @@ enable_testing()
 include_directories(src)
 
 set(SOURCES
+	src/gem/circular_buffer.h
+	src/gem/datastore.h
+	src/gem/hashmap.h
+	src/gem/memory_manager.h
+	src/gem/spinlock.h
+	src/gem/type.h
 	test/main.cpp
 	test/test_circular_buffer.cpp
 	test/test_datastore.cpp
 	test/test_hashmap.cpp
 	test/test_memory_manager.cpp
+	test/test_type.cpp
 	)
 
 find_package(Threads)

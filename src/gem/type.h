@@ -39,27 +39,8 @@ public:
 
     bool safe_is_null() const
     {
-        std::lock_guard lock{*read_mutex_};
-        return managed_ == nullptr;
-    }
-
-    type<Managed> deep_copy() const
-    {
-        type<Managed> obj;
-        if (managed_) {
-            obj.managed_ = std::make_shared<Managed>(*managed_);
-        }
-        return obj;
-    }
-
-    type<Managed> safe_deep_copy() const
-    {
-        type<Managed> obj;
-        if (managed_) {
-            std::lock_guard lock{*read_mutex_};
-            obj.managed_ = std::make_shared<Managed>(*managed_);
-        }
-        return obj;
+        std::shared_lock lock{*mutex_};
+        return is_null();
     }
 
     const Managed& get() const
@@ -74,14 +55,40 @@ public:
         return *managed_;
     }
 
-    std::shared_mutex& read_mutex()
+    std::shared_mutex& mutex() const
     {
-        return *read_mutex_;
+        return *mutex_;
     }
 
-    std::mutex& write_mutex()
+    type<Managed> copy() const
     {
-        return *write_mutex_;
+        type<Managed> obj;
+        if (managed_) {
+            obj.managed_ = std::make_shared<Managed>(*managed_);
+        }
+        return obj;
+    }
+
+    type<Managed> safe_copy() const
+    {
+        type<Managed> obj;
+        if (managed_) {
+            std::shared_lock lock{*mutex_};
+            obj.managed_ = std::make_shared<Managed>(*managed_);
+        }
+        return obj;
+    }
+
+    void swap(type<Managed>& obj)
+    {
+        std::swap(managed_, obj.managed_);
+        std::swap(mutex_, obj.mutex_);
+    }
+
+    void safe_swap(type<Managed>& obj)
+    {
+        std::scoped_lock lock{*mutex_, *obj.mutex_};
+        swap(obj);
     }
 
 private:
@@ -95,8 +102,7 @@ private:
     }
 
     std::shared_ptr<Managed> managed_;
-    std::shared_ptr<std::shared_mutex> read_mutex_ = std::make_shared<std::shared_mutex>();
-    std::shared_ptr<std::mutex> write_mutex_ = std::make_shared<std::mutex>();
+    std::shared_ptr<std::shared_mutex> mutex_ = std::make_shared<std::shared_mutex>();
 };
 
 
