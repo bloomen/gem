@@ -87,7 +87,7 @@ public:
     void pop() noexcept(std::is_nothrow_constructible_v<value_type> && std::is_nothrow_destructible_v<value_type>)
     {
         if (!empty()) {
-            data_[front_] = value_type{};
+            data_[front_].~value_type();
             decrement();
         }
     }
