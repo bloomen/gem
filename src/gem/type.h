@@ -24,6 +24,32 @@ public:
     {
         type<Managed> obj;
         obj.managed_ = std::make_shared<Managed>(std::forward<Args>(args)...);
+        obj.mutex_ = std::make_shared<std::shared_mutex>();
+        return obj;
+    }
+
+    template<typename... Args>
+    static type<Managed> make_with(std::shared_ptr<std::shared_mutex> mutex, Args&&... args)
+    {
+        type<Managed> obj;
+        obj.managed_ = std::make_shared<Managed>(std::forward<Args>(args)...);
+        obj.mutex_ = std::move(mutex);
+        return obj;
+    }
+
+    static type<Managed> make_from(std::shared_ptr<Managed> managed)
+    {
+        type<Managed> obj;
+        obj.managed_ = std::move(managed);
+        obj.mutex_ = std::make_shared<std::shared_mutex>();
+        return obj;
+    }
+
+    static type<Managed> make_from(std::shared_ptr<std::shared_mutex> mutex, std::shared_ptr<Managed> managed)
+    {
+        type<Managed> obj;
+        obj.managed_ = std::move(managed);
+        obj.mutex_ = std::move(mutex);
         return obj;
     }
 
@@ -102,7 +128,7 @@ private:
     }
 
     std::shared_ptr<Managed> managed_;
-    std::shared_ptr<std::shared_mutex> mutex_ = std::make_shared<std::shared_mutex>();
+    std::shared_ptr<std::shared_mutex> mutex_;
 };
 
 
