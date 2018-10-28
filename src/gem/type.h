@@ -55,7 +55,16 @@ public:
 
     static type<Managed> null()
     {
-        return {};
+        type<Managed> obj;
+        obj.mutex_ = std::make_shared<std::shared_mutex>();
+        return obj;
+    }
+
+    static type<Managed> null_with(std::shared_ptr<std::shared_mutex> mutex)
+    {
+        type<Managed> obj;
+        obj.mutex_ = std::move(mutex);
+        return obj;
     }
 
     bool is_null() const
