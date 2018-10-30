@@ -37,7 +37,7 @@ public:
         return obj;
     }
 
-    static type<Managed> make_from(std::shared_ptr<Managed> managed)
+    static type<Managed> from(std::shared_ptr<Managed> managed)
     {
         type<Managed> obj;
         obj.managed_ = std::move(managed);
@@ -45,7 +45,7 @@ public:
         return obj;
     }
 
-    static type<Managed> make_from(std::shared_ptr<std::shared_mutex> mutex, std::shared_ptr<Managed> managed)
+    static type<Managed> from_with(std::shared_ptr<std::shared_mutex> mutex, std::shared_ptr<Managed> managed)
     {
         type<Managed> obj;
         obj.managed_ = std::move(managed);

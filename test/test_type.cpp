@@ -66,3 +66,31 @@ TEST_CASE("type__mutex") {
         REQUIRE(43 == obj.get());
     }
 }
+
+TEST_CASE("type__make_with") {
+    auto mutex = std::make_shared<std::shared_mutex>();
+    auto obj = type<int>::make_with(mutex, 42);
+    REQUIRE(mutex.get() == &obj.mutex());
+    REQUIRE(42 == obj.get());
+}
+
+TEST_CASE("type__from") {
+    auto data = std::make_shared<int>(42);
+    auto obj = type<int>::from(data);
+    REQUIRE(42 == obj.get());
+}
+
+TEST_CASE("type__from_with") {
+    auto mutex = std::make_shared<std::shared_mutex>();
+    auto data = std::make_shared<int>(42);
+    auto obj = type<int>::from_with(mutex, data);
+    REQUIRE(mutex.get() == &obj.mutex());
+    REQUIRE(42 == obj.get());
+}
+
+TEST_CASE("type__null_with") {
+    auto mutex = std::make_shared<std::shared_mutex>();
+    auto obj = type<int>::null_with(mutex);
+    REQUIRE(mutex.get() == &obj.mutex());
+    REQUIRE(obj.is_null());
+}
