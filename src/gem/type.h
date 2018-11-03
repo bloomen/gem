@@ -107,9 +107,11 @@ public:
     type<Managed> safe_copy() const
     {
         type<Managed> obj;
-        if (managed_) {
+        {
             std::shared_lock lock{*mutex_};
-            obj.managed_ = std::make_shared<Managed>(*managed_);
+            if (managed_) {
+                obj.managed_ = std::make_shared<Managed>(*managed_);
+            }
         }
         return obj;
     }
