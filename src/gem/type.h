@@ -2,7 +2,6 @@
 #include <mutex>
 #include <shared_mutex>
 #include <stdexcept>
-#include <tuple>
 
 
 namespace gem {
@@ -95,25 +94,24 @@ public:
         return *mutex_;
     }
 
-    type<Managed> copy() const
+    type<Managed> copy(const bool inherit_mutex=false) const
     {
         type<Managed> obj;
         if (managed_) {
             obj.managed_ = std::make_shared<Managed>(*managed_);
+            if (inherit_mutex) {
+                obj.mutex_ = mutex_;
+            } else {
+                obj.mutex_ = std::make_shared<std::shared_mutex>();
+            }
         }
         return obj;
     }
 
-    type<Managed> safe_copy() const
+    type<Managed> safe_copy(const bool inherit_mutex=false) const
     {
-        type<Managed> obj;
-        {
-            std::shared_lock lock{*mutex_};
-            if (managed_) {
-                obj.managed_ = std::make_shared<Managed>(*managed_);
-            }
-        }
-        return obj;
+        std::shared_lock lock{*mutex_};
+        return copy(inherit_mutex);
     }
 
     void swap(type<Managed>& obj)

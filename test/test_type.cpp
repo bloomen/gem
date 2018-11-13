@@ -26,6 +26,15 @@ TEST_CASE("type__copy") {
     const auto obj2 = obj1.copy();
     REQUIRE(!obj2.is_null());
     REQUIRE(42 == obj2.get());
+    REQUIRE(&obj1.mutex() != &obj2.mutex());
+}
+
+TEST_CASE("type__copy_inherit_mutex") {
+    const auto obj1 = type<int>::make(42);
+    const auto obj2 = obj1.copy(true);
+    REQUIRE(!obj2.is_null());
+    REQUIRE(42 == obj2.get());
+    REQUIRE(&obj1.mutex() == &obj2.mutex());
 }
 
 TEST_CASE("type__safe_copy") {
@@ -33,6 +42,15 @@ TEST_CASE("type__safe_copy") {
     const auto obj2 = obj1.safe_copy();
     REQUIRE(!obj2.is_null());
     REQUIRE(42 == obj2.get());
+    REQUIRE(&obj1.mutex() != &obj2.mutex());
+}
+
+TEST_CASE("type__safe_copy_inherit_mutex") {
+    const auto obj1 = type<int>::make(42);
+    const auto obj2 = obj1.safe_copy(true);
+    REQUIRE(!obj2.is_null());
+    REQUIRE(42 == obj2.get());
+    REQUIRE(&obj1.mutex() == &obj2.mutex());
 }
 
 TEST_CASE("type__swap") {
