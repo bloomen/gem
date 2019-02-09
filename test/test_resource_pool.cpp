@@ -1,15 +1,18 @@
+#include <gem/resource_pool.h>
+
 #include "catch.hpp"
-#include <gem/memory_manager.h>
 
 
 TEST_CASE("allocate") {
-    gem::memory_manager mm;
+    gem::resource_pool mm;
     auto p = mm.allocate<int>(42);
     REQUIRE(42 == *p);
+
+//    std::weak_ptr<int> w = p;
 }
 
 TEST_CASE("garbage_collect") {
-    gem::memory_manager mm;
+    gem::resource_pool mm;
     {
         auto p = mm.allocate<int>(42);
         REQUIRE(42 == *p);
