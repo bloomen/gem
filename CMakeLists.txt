@@ -13,6 +13,7 @@ set(SOURCES
 	src/gem/type.h
 	test/main.cpp
 	test/test_circular_buffer.cpp
+	test/test_command_queue.cpp
 	test/test_datastore.cpp
 	test/test_hashmap.cpp
 	test/test_resource_pool.cpp
