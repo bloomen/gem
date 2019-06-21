@@ -8,7 +8,7 @@
 
 namespace gem {
 
-template<std::size_t StorageCapacity=64, std::size_t InitialQueueCapacity=1024>
+template<std::size_t StorageCapacity=64, std::size_t QueueCapacity=1024>
 class command_queue
 {
 public:
@@ -26,17 +26,7 @@ public:
         storage st;
         auto cmd_begin = reinterpret_cast<unsigned char*>(&cmd);
         std::copy(cmd_begin, cmd_begin + sizeof(cmd), st.data);
-        if (size_ == capacity_)
-        {
-            auto expected = capacity_.load();
-            const auto desired = expected * 2;
-            while (!capacity_.compare_exchange_weak(expected, desired) && expected != desired);
-            queue_.reserve(capacity_);
-        }
-        if (queue_.push(st))
-        {
-            ++size_;
-        }
+        queue_.push(st);
     }
 
     void sync()
@@ -44,7 +34,6 @@ public:
         storage st;
         while (queue_.pop(st))
         {
-            --size_;
             auto cmd = reinterpret_cast<command_base*>(st.data);
             cmd->execute();
             cmd->~command_base();
@@ -99,9 +88,7 @@ private:
         std::tuple<Args...> args;
     };
 
-    boost::lockfree::queue<storage> queue_{InitialQueueCapacity};
-    std::atomic<std::size_t> capacity_{InitialQueueCapacity};
-    std::atomic<std::size_t> size_{0};
+    boost::lockfree::queue<storage, boost::lockfree::capacity<QueueCapacity>> queue_;
 };
 
 }
