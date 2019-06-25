@@ -23,10 +23,7 @@ public:
     {
         command<Object, Args...> cmd{object, functor, std::make_tuple(std::move(args)...)};
         static_assert(sizeof(cmd) <= sizeof(storage), "storage capacity too small");
-        storage st;
-        auto cmd_begin = reinterpret_cast<unsigned char*>(&cmd);
-        std::copy(cmd_begin, cmd_begin + sizeof(cmd), st.data);
-        queue_.push(st);
+        queue_.push(*reinterpret_cast<storage*>(&cmd));
     }
 
     void sync()
@@ -77,7 +74,7 @@ private:
     struct command : command_base
     {
         command(Object* object, void (Object::*functor)(Args...), std::tuple<Args...> args)
-        : object(object), functor(functor), args{std::move(args)}
+        : object{object}, functor{functor}, args{std::move(args)}
         {}
         void execute() override
         {
