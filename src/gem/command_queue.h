@@ -3,6 +3,7 @@
 #include <boost/lockfree/queue.hpp>
 
 #include <cassert>
+#include <cstddef>
 #include <tuple>
 
 namespace gem {
