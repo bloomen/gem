@@ -23,7 +23,7 @@ public:
     {
         command<Object, Args...> cmd{object, functor, std::make_tuple(std::move(args)...)};
         static_assert(sizeof(cmd) <= sizeof(storage), "storage capacity too small");
-        queue_.push(*reinterpret_cast<storage*>(&cmd));
+        assert(queue_.push(*reinterpret_cast<storage*>(&cmd)));
     }
 
     void sync()
@@ -61,14 +61,8 @@ private:
     template<int... S>
     struct gens<0, S...>
     {
-        typedef seq<S...> type;
+        using type = seq<S...>;
     };
-
-    template<typename Object, typename... Args, int... S>
-    static void call(Object* object, void (Object::*functor)(Args...), const std::tuple<Args...>& args, seq<S...>)
-    {
-        (object->*functor)(std::get<S>(args)...);
-    }
 
     template<typename Object, typename... Args>
     struct command : command_base
@@ -78,7 +72,12 @@ private:
         {}
         void execute() override
         {
-            call(object, functor, args, typename gens<static_cast<int>(sizeof...(Args))>::type{});
+            call(typename gens<static_cast<int>(sizeof...(Args))>::type{});
+        }
+        template<int... S>
+        void call(seq<S...>)
+        {
+            (object->*functor)(std::get<S>(args)...);
         }
         Object* object;
         void (Object::*functor)(Args...);
