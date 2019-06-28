@@ -15,6 +15,8 @@ public:
 
     command_queue()
     {
+        static_assert(is_power_of_2<StorageCapacity>::value, "StorageCapacity not a power of 2");
+        static_assert(is_power_of_2<QueueCapacity>::value, "QueueCapacity not a power of 2");
         assert(queue_.is_lock_free());
     }
 
@@ -38,6 +40,13 @@ public:
     }
 
 private:
+
+    template<std::size_t Value>
+    struct is_power_of_2
+    {
+        static constexpr auto input = static_cast<int>(Value);
+        static constexpr bool value = input && !(input & (input - 1));
+    };
 
     struct storage
     {
