@@ -2,7 +2,6 @@
 
 #include <boost/lockfree/queue.hpp>
 
-#include <algorithm>
 #include <cassert>
 #include <tuple>
 
@@ -25,7 +24,7 @@ public:
     {
         command<Object, Args...> cmd{object, functor, std::make_tuple(std::move(args)...)};
         static_assert(sizeof(cmd) <= sizeof(storage), "storage capacity too small");
-        assert(queue_.push(*reinterpret_cast<storage*>(&cmd)));
+        assert(queue_.push(reinterpret_cast<storage&>(cmd)));
     }
 
     void sync()
@@ -33,9 +32,9 @@ public:
         storage st;
         while (queue_.pop(st))
         {
-            auto cmd = reinterpret_cast<command_base*>(st.data);
-            cmd->execute();
-            cmd->~command_base();
+            auto& cmd = reinterpret_cast<command_base&>(st);
+            cmd.execute();
+            cmd.~command_base();
         }
     }
 
