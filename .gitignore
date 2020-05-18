@@ -14,4 +14,4 @@ Makefile
 cmake_install.cmake
 /build
 /check_build*
-CTestTestfile.cmake
+CMakeLists.txt.user

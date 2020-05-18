@@ -9,6 +9,7 @@ set(SOURCES
 	src/gem/datastore.h
 	src/gem/hashmap.h
 	src/gem/resource_pool.h
+    src/gem/result.h
 	src/gem/spinlock.h
 	src/gem/type.h
 	test/main.cpp
@@ -16,8 +17,9 @@ set(SOURCES
 	test/test_command_queue.cpp
 	test/test_datastore.cpp
 	test/test_hashmap.cpp
-	test/test_resource_pool.cpp
-	test/test_type.cpp
+    test/test_resource_pool.cpp
+    test/test_result.cpp
+    test/test_type.cpp
 	)
 
 find_package(Threads)
