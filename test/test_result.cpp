@@ -17,7 +17,6 @@ gem::Result<double> fail_func()
 
 }
 
-
 TEST_CASE("result") {
     auto res1 = success_func();
     REQUIRE(res1.ok());
@@ -33,6 +32,44 @@ TEST_CASE("result_unwrap") {
     auto res = success_func();
     auto d = res.unwrap();
     REQUIRE(13.3 == d);
-    REQUIRE_THROWS_AS(res.unwrap(), gem::ResultError);
+    REQUIRE(13.3 == res.unwrap());
     REQUIRE_THROWS_AS(fail_func().unwrap(), gem::ResultError);
+    auto res2 = fail_func();
+    REQUIRE_THROWS_AS(res2.unwrap(), gem::ResultError);
+}
+
+TEST_CASE("result_match_success") {
+    success_func().match(
+                [](double x){ REQUIRE(13.3 == x); },
+                [](auto){ REQUIRE(false); }
+            );
+    auto res = success_func();
+    res.match(
+        [](double x){ REQUIRE(13.3 == x); },
+        [](auto){ REQUIRE(false); }
+    );
+    res.match(
+        [](double x){ REQUIRE(13.3 == x); },
+        [](auto){ REQUIRE(false); }
+    );
+    std::move(res).match(
+        [](double x){ REQUIRE(13.3 == x); },
+        [](auto){ REQUIRE(false); }
+    );
+    res.match(
+        [](double){ REQUIRE(false); },
+        [](auto e){ REQUIRE(e.code() == gem::Error::CODE_CONSUMED); }
+    );
+}
+
+TEST_CASE("result_match_error") {
+    fail_func().match(
+                [](double){ REQUIRE(false); },
+                [](auto e){ REQUIRE("rough day" == e.message()); }
+            );
+    auto res = fail_func();
+    res.match(
+        [](double){ REQUIRE(false); },
+        [](auto e){ REQUIRE("rough day" == e.message()); }
+    );
 }

@@ -13,7 +13,7 @@ class Error
 {
 public:
     static constexpr int CODE_UNSET = std::numeric_limits<int>::max();
-    static constexpr int CODE_UNWRAP = CODE_UNSET - 1;
+    static constexpr int CODE_CONSUMED = CODE_UNSET - 1;
 
     explicit Error() = default;
     explicit Error(std::string message)
@@ -39,9 +39,9 @@ public:
     std::string repr() const
     {
         std::string str = "Error: ";
-        if (m_code == CODE_UNWRAP)
+        if (m_code == CODE_CONSUMED)
         {
-            str += "unwrapped";
+            str += "data consumed";
             return str;
         }
         str += m_message;
@@ -69,11 +69,14 @@ template<typename Data>
 class Result
 {
 public:
-    Result(Data data)
+    static_assert(!std::is_same_v<Data, Error>, "Data cannot be Error");
+
+    Result(const Data& data)
+        : m_result{data}
+    {}
+    Result(Data&& data)
         : m_result{std::move(data)}
-    {
-        static_assert(!std::is_same_v<Data, Error>, "Data cannot be Error");
-    }
+    {}
     Result(Error error)
         : m_result{std::move(error)}
     {}
@@ -93,18 +96,50 @@ public:
         return std::get<Data>(m_result);
     }
 
-    Data& data()
+    template<typename DataFunctor, typename ErrorFunctor>
+    void match(DataFunctor&& data_functor, ErrorFunctor&& error_functor) const &
     {
-        return std::get<Data>(m_result);
+        if (ok())
+        {
+            std::forward<DataFunctor>(data_functor)(data());
+        }
+        else
+        {
+            std::forward<ErrorFunctor>(error_functor)(error());
+        }
     }
 
-    Data&& unwrap()
+    template<typename DataFunctor, typename ErrorFunctor>
+    void match(DataFunctor&& data_functor, ErrorFunctor&& error_functor) &&
+    {
+        if (ok())
+        {
+            std::variant<Data, Error> res{Error{Error::CODE_CONSUMED}};
+            std::swap(res, m_result);
+            std::forward<DataFunctor>(data_functor)(std::get<Data>(std::move(res)));
+        }
+        else
+        {
+            std::forward<ErrorFunctor>(error_functor)(error());
+        }
+    }
+
+    const Data& unwrap() const &
     {
         if (!ok())
         {
             throw ResultError{error().repr()};
         }
-        std::variant<Data, Error> res{Error{Error::CODE_UNWRAP}};
+        return data();
+    }
+
+    Data&& unwrap() &&
+    {
+        if (!ok())
+        {
+            throw ResultError{error().repr()};
+        }
+        std::variant<Data, Error> res{Error{Error::CODE_CONSUMED}};
         std::swap(res, m_result);
         return std::get<Data>(std::move(res));
     }
