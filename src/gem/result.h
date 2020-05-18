@@ -138,4 +138,50 @@ private:
     std::variant<Value, Error> m_result;
 };
 
+template<>
+class Result<void>
+{
+public:
+    Result()
+        : m_result{std::monostate{}}
+    {}
+    Result(Error error)
+        : m_result{std::move(error)}
+    {}
+
+    bool ok() const
+    {
+        return std::holds_alternative<std::monostate>(m_result);
+    }
+
+    const Error& error() const
+    {
+        return std::get<Error>(m_result);
+    }
+
+    template<typename ValueFunctor, typename ErrorFunctor>
+    void match(ValueFunctor&& value_functor, ErrorFunctor&& error_functor) const
+    {
+        if (ok())
+        {
+            std::forward<ValueFunctor>(value_functor)();
+        }
+        else
+        {
+            std::forward<ErrorFunctor>(error_functor)(error());
+        }
+    }
+
+    void unwrap() const
+    {
+        if (!ok())
+        {
+            throw ResultError{error().repr()};
+        }
+    }
+
+private:
+    std::variant<std::monostate, Error> m_result;
+};
+
 }
