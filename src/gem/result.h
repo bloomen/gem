@@ -3,6 +3,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <variant>
 
 namespace gem
@@ -70,7 +71,9 @@ class Result
 public:
     Result(Data data)
         : m_result{std::move(data)}
-    {}
+    {
+        static_assert(!std::is_same_v<Data, Error>, "Data cannot be Error");
+    }
     Result(Error error)
         : m_result{std::move(error)}
     {}
