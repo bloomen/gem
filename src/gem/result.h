@@ -59,17 +59,17 @@ public:
     {}
 };
 
-template<typename Data>
+template<typename Value>
 class Result
 {
 public:
-    static_assert(!std::is_same_v<Data, Error>, "Data cannot be Error");
+    static_assert(!std::is_same_v<Value, Error>, "Value cannot be Error");
 
-    Result(const Data& data)
-        : m_result{data}
+    Result(const Value& value)
+        : m_result{value}
     {}
-    Result(Data&& data)
-        : m_result{std::move(data)}
+    Result(Value&& value)
+        : m_result{std::move(value)}
     {}
     Result(Error error)
         : m_result{std::move(error)}
@@ -77,7 +77,7 @@ public:
 
     bool ok() const
     {
-        return std::holds_alternative<Data>(m_result);
+        return std::holds_alternative<Value>(m_result);
     }
 
     const Error& error() const
@@ -85,17 +85,17 @@ public:
         return std::get<Error>(m_result);
     }
 
-    const Data& data() const
+    const Value& value() const
     {
-        return std::get<Data>(m_result);
+        return std::get<Value>(m_result);
     }
 
-    template<typename DataFunctor, typename ErrorFunctor>
-    void match(DataFunctor&& data_functor, ErrorFunctor&& error_functor) const &
+    template<typename ValueFunctor, typename ErrorFunctor>
+    void match(ValueFunctor&& value_functor, ErrorFunctor&& error_functor) const &
     {
         if (ok())
         {
-            std::forward<DataFunctor>(data_functor)(data());
+            std::forward<ValueFunctor>(value_functor)(value());
         }
         else
         {
@@ -103,12 +103,12 @@ public:
         }
     }
 
-    template<typename DataFunctor, typename ErrorFunctor>
-    void match(DataFunctor&& data_functor, ErrorFunctor&& error_functor) &&
+    template<typename ValueFunctor, typename ErrorFunctor>
+    void match(ValueFunctor&& value_functor, ErrorFunctor&& error_functor) &&
     {
         if (ok())
         {
-            std::forward<DataFunctor>(data_functor)(std::get<Data>(std::move(m_result)));
+            std::forward<ValueFunctor>(value_functor)(std::get<Value>(std::move(m_result)));
         }
         else
         {
@@ -116,26 +116,26 @@ public:
         }
     }
 
-    const Data& unwrap() const &
+    const Value& unwrap() const &
     {
         if (!ok())
         {
             throw ResultError{error().repr()};
         }
-        return data();
+        return value();
     }
 
-    Data&& unwrap() &&
+    Value&& unwrap() &&
     {
         if (!ok())
         {
-            throw ResultError{error().repr()};
+            throw ResultError{"Result: " + error().repr()};
         }
-        return std::get<Data>(std::move(m_result));
+        return std::get<Value>(std::move(m_result));
     }
 
 private:
-    std::variant<Data, Error> m_result;
+    std::variant<Value, Error> m_result;
 };
 
 }

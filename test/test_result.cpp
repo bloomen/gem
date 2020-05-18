@@ -20,7 +20,7 @@ gem::Result<double> fail_func()
 TEST_CASE("result") {
     auto res1 = success_func();
     REQUIRE(res1.ok());
-    REQUIRE(13.3 == res1.data());
+    REQUIRE(13.3 == res1.value());
     auto res2 = fail_func();
     REQUIRE(!res2.ok());
     REQUIRE("rough day" == res2.error().message());
