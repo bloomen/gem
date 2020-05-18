@@ -13,7 +13,6 @@ class Error
 {
 public:
     static constexpr int CODE_UNSET = std::numeric_limits<int>::max();
-    static constexpr int CODE_CONSUMED = CODE_UNSET - 1;
 
     explicit Error() = default;
     explicit Error(std::string message)
@@ -39,11 +38,6 @@ public:
     std::string repr() const
     {
         std::string str = "Error: ";
-        if (m_code == CODE_CONSUMED)
-        {
-            str += "data consumed";
-            return str;
-        }
         str += m_message;
         if (m_code != CODE_UNSET)
         {
@@ -114,9 +108,7 @@ public:
     {
         if (ok())
         {
-            std::variant<Data, Error> res{Error{Error::CODE_CONSUMED}};
-            std::swap(res, m_result);
-            std::forward<DataFunctor>(data_functor)(std::get<Data>(std::move(res)));
+            std::forward<DataFunctor>(data_functor)(std::get<Data>(std::move(m_result)));
         }
         else
         {
@@ -139,9 +131,7 @@ public:
         {
             throw ResultError{error().repr()};
         }
-        std::variant<Data, Error> res{Error{Error::CODE_CONSUMED}};
-        std::swap(res, m_result);
-        return std::get<Data>(std::move(res));
+        return std::get<Data>(std::move(m_result));
     }
 
 private:

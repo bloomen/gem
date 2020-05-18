@@ -56,10 +56,6 @@ TEST_CASE("result_match_success") {
         [](double x){ REQUIRE(13.3 == x); },
         [](auto){ REQUIRE(false); }
     );
-    res.match(
-        [](double){ REQUIRE(false); },
-        [](auto e){ REQUIRE(e.code() == gem::Error::CODE_CONSUMED); }
-    );
 }
 
 TEST_CASE("result_match_error") {
