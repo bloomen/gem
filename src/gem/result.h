@@ -15,13 +15,19 @@ public:
     static constexpr int CODE_UNSET = std::numeric_limits<int>::max();
 
     explicit Error() = default;
-    explicit Error(std::string message)
+    explicit Error(const std::string& message)
+        : m_message{message}
+    {}
+    explicit Error(std::string&& message)
         : m_message{std::move(message)}
     {}
     explicit Error(const int code)
         : m_code{code}
     {}
-    explicit Error(std::string message, const int code)
+    explicit Error(const std::string& message, const int code)
+        : m_message{message}, m_code{code}
+    {}
+    explicit Error(std::string&& message, const int code)
         : m_message{std::move(message)}, m_code{code}
     {}
 
@@ -71,7 +77,10 @@ public:
     Result(Value&& value)
         : m_result{std::move(value)}
     {}
-    Result(Error error)
+    Result(const Error& error)
+        : m_result{error}
+    {}
+    Result(Error&& error)
         : m_result{std::move(error)}
     {}
 
@@ -145,7 +154,10 @@ public:
     Result()
         : m_result{std::monostate{}}
     {}
-    Result(Error error)
+    Result(const Error& error)
+        : m_result{error}
+    {}
+    Result(Error&& error)
         : m_result{std::move(error)}
     {}
 
