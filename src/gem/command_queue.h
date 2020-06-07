@@ -12,7 +12,6 @@ template<std::size_t StorageCapacity=64, std::size_t QueueCapacity=1024>
 class command_queue
 {
 public:
-
     command_queue()
     {
         static_assert(is_power_of_2<StorageCapacity>::value, "StorageCapacity not a power of 2");
@@ -21,11 +20,14 @@ public:
     }
 
     template<typename Object, typename... Args>
-    void push(Object* object, void (Object::*functor)(Args...), Args... args)
+    void push(Object* object, void (Object::*functor)(Args...), Args&&... args)
     {
-        command<Object, Args...> cmd{object, functor, std::make_tuple(std::move(args)...)};
+        command<Object, Args...> cmd{object, functor, std::make_tuple(std::forward<Args>(args)...)};
         static_assert(sizeof(cmd) <= sizeof(storage), "storage capacity too small");
-        assert(queue_.push(reinterpret_cast<storage&>(cmd)));
+        if (!queue_.push(reinterpret_cast<storage&>(cmd)))
+        {
+            assert(false && "queue push failed");
+        }
     }
 
     void sync()
@@ -59,35 +61,25 @@ private:
         virtual void execute() = 0;
     };
 
-    template<int...>
-    struct seq
-    {};
-
-    template<int N, int... S>
-    struct gens : gens<N-1, N-1, S...>
-    {};
-
-    template<int... S>
-    struct gens<0, S...>
-    {
-        using type = seq<S...>;
-    };
-
     template<typename Object, typename... Args>
     struct command : command_base
     {
-        command(Object* object, void (Object::*functor)(Args...), std::tuple<Args...> args)
+        command(Object* object, void (Object::*functor)(Args...), std::tuple<Args...>&& args)
         : object{object}, functor{functor}, args{std::move(args)}
         {}
+
         void execute() override
         {
-            call(typename gens<static_cast<int>(sizeof...(Args))>::type{});
+            call(std::index_sequence_for<Args...>{});
         }
-        template<int... S>
-        void call(seq<S...>)
+
+    private:
+        template<std::size_t... Is>
+        void call(std::index_sequence<Is...>)
         {
-            (object->*functor)(std::get<S>(args)...);
+            (object->*functor)(std::get<Is>(args)...);
         }
+
         Object* object;
         void (Object::*functor)(Args...);
         std::tuple<Args...> args;

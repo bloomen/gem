@@ -6,6 +6,7 @@ include_directories(src)
 
 set(SOURCES
 src/gem/circular_buffer.h
+src/gem/command_queue.h
 src/gem/datastore.h
 src/gem/hashmap.h
 src/gem/resource_pool.h
