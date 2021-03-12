@@ -21,7 +21,9 @@ public:
     resource_pool(resource_pool&&) = default;
     resource_pool& operator=(resource_pool&&) = default;
 
-    template<typename T, typename... Args, typename Allocator=std::allocator<T>>
+    template<typename T,
+             typename... Args,
+             typename Allocator = std::allocator<T>>
     gem::resource<T> allocate(Args&&... args)
     {
         Allocator allocator;
