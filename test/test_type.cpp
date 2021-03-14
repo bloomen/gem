@@ -3,25 +3,29 @@
 
 using gem::type;
 
-TEST_CASE("type__make") {
+TEST_CASE("type__make")
+{
     const auto obj = type<int>::make(42);
     REQUIRE(!obj.is_null());
     REQUIRE(42 == obj.get());
 }
 
-TEST_CASE("type__null") {
+TEST_CASE("type__null")
+{
     const auto obj = type<int>::null();
     REQUIRE(obj.is_null());
 }
 
-TEST_CASE("type__safe_is_null") {
+TEST_CASE("type__safe_is_null")
+{
     const auto obj1 = type<int>::make(42);
     REQUIRE(!obj1.safe_is_null());
     const auto obj2 = type<int>::null();
     REQUIRE(obj2.safe_is_null());
 }
 
-TEST_CASE("type__copy") {
+TEST_CASE("type__copy")
+{
     const auto obj1 = type<int>::make(42);
     const auto obj2 = obj1.copy();
     REQUIRE(!obj2.is_null());
@@ -29,7 +33,8 @@ TEST_CASE("type__copy") {
     REQUIRE(&obj1.mutex() != &obj2.mutex());
 }
 
-TEST_CASE("type__copy_inherit_mutex") {
+TEST_CASE("type__copy_inherit_mutex")
+{
     const auto obj1 = type<int>::make(42);
     const auto obj2 = obj1.copy(true);
     REQUIRE(!obj2.is_null());
@@ -37,7 +42,8 @@ TEST_CASE("type__copy_inherit_mutex") {
     REQUIRE(&obj1.mutex() == &obj2.mutex());
 }
 
-TEST_CASE("type__safe_copy") {
+TEST_CASE("type__safe_copy")
+{
     const auto obj1 = type<int>::make(42);
     const auto obj2 = obj1.safe_copy();
     REQUIRE(!obj2.is_null());
@@ -45,7 +51,8 @@ TEST_CASE("type__safe_copy") {
     REQUIRE(&obj1.mutex() != &obj2.mutex());
 }
 
-TEST_CASE("type__safe_copy_inherit_mutex") {
+TEST_CASE("type__safe_copy_inherit_mutex")
+{
     const auto obj1 = type<int>::make(42);
     const auto obj2 = obj1.safe_copy(true);
     REQUIRE(!obj2.is_null());
@@ -53,7 +60,8 @@ TEST_CASE("type__safe_copy_inherit_mutex") {
     REQUIRE(&obj1.mutex() == &obj2.mutex());
 }
 
-TEST_CASE("type__swap") {
+TEST_CASE("type__swap")
+{
     auto obj1 = type<int>::make(42);
     auto obj2 = type<int>::make(13);
     obj1.swap(obj2);
@@ -63,7 +71,8 @@ TEST_CASE("type__swap") {
     REQUIRE(42 == obj2.get());
 }
 
-TEST_CASE("type__safe_swap") {
+TEST_CASE("type__safe_swap")
+{
     auto obj1 = type<int>::make(42);
     auto obj2 = type<int>::make(13);
     obj1.safe_swap(obj2);
@@ -73,7 +82,8 @@ TEST_CASE("type__safe_swap") {
     REQUIRE(42 == obj2.get());
 }
 
-TEST_CASE("type__mutex") {
+TEST_CASE("type__mutex")
+{
     auto obj = type<int>::make(42);
     {
         std::lock_guard lock{obj.mutex()};
@@ -85,20 +95,23 @@ TEST_CASE("type__mutex") {
     }
 }
 
-TEST_CASE("type__make_with") {
+TEST_CASE("type__make_with")
+{
     auto mutex = std::make_shared<std::shared_mutex>();
     auto obj = type<int>::make_with(mutex, 42);
     REQUIRE(mutex.get() == &obj.mutex());
     REQUIRE(42 == obj.get());
 }
 
-TEST_CASE("type__from") {
+TEST_CASE("type__from")
+{
     auto data = std::make_shared<int>(42);
     auto obj = type<int>::from(data);
     REQUIRE(42 == obj.get());
 }
 
-TEST_CASE("type__from_with") {
+TEST_CASE("type__from_with")
+{
     auto mutex = std::make_shared<std::shared_mutex>();
     auto data = std::make_shared<int>(42);
     auto obj = type<int>::from_with(mutex, data);
@@ -106,7 +119,8 @@ TEST_CASE("type__from_with") {
     REQUIRE(42 == obj.get());
 }
 
-TEST_CASE("type__null_with") {
+TEST_CASE("type__null_with")
+{
     auto mutex = std::make_shared<std::shared_mutex>();
     auto obj = type<int>::null_with(mutex);
     REQUIRE(mutex.get() == &obj.mutex());

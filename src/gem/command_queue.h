@@ -15,12 +15,10 @@ class command_queue
 public:
     command_queue()
     {
-        static_assert(
-            is_power_of_2<StorageCapacity>::value,
-            "StorageCapacity not a power of 2");
-        static_assert(
-            is_power_of_2<QueueCapacity>::value,
-            "QueueCapacity not a power of 2");
+        static_assert(is_power_of_2<StorageCapacity>::value,
+                      "StorageCapacity not a power of 2");
+        static_assert(is_power_of_2<QueueCapacity>::value,
+                      "QueueCapacity not a power of 2");
         assert(queue_.is_lock_free());
     }
 
@@ -30,8 +28,8 @@ public:
     {
         command<Object, Args...> cmd{
             object, functor, std::make_tuple(std::forward<Args>(args)...)};
-        static_assert(
-            sizeof(cmd) <= sizeof(storage), "storage capacity too small");
+        static_assert(sizeof(cmd) <= sizeof(storage),
+                      "storage capacity too small");
         if (!queue_.push(reinterpret_cast<storage&>(cmd)))
         {
             assert(false && "queue push failed");
@@ -72,10 +70,9 @@ private:
     template <typename Object, typename... Args>
     struct command : command_base
     {
-        command(
-            Object* object,
-            void (Object::*functor)(Args...),
-            std::tuple<Args...>&& args)
+        command(Object* object,
+                void (Object::*functor)(Args...),
+                std::tuple<Args...>&& args)
             : object{object}
             , functor{functor}
             , args{std::move(args)}

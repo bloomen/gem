@@ -1,31 +1,38 @@
 #include "catch.hpp"
 #include <gem/hashmap.h>
 
-enum class type {
+enum class type
+{
     int32,
 };
 
-namespace gem {
-namespace ds {
+namespace gem
+{
+namespace ds
+{
 
-template<>
-struct data_type<std::int32_t> {
+template <>
+struct data_type<std::int32_t>
+{
     static constexpr int type_index = static_cast<int>(type::int32);
-    static std::string to_string(int value)
+    static std::string
+    to_string(int value)
     {
         return std::to_string(value);
     }
-    static int from_string(const std::string& data)
+    static int
+    from_string(const std::string& data)
     {
         return std::stoi(data);
     }
 };
 
-}
-}
+} // namespace ds
+} // namespace gem
 
-template<std::size_t Buckets>
-void test_put_and_size()
+template <std::size_t Buckets>
+void
+test_put_and_size()
 {
     gem::hashmap<int, Buckets> map;
     REQUIRE(0 == map.size());
@@ -37,15 +44,17 @@ void test_put_and_size()
     REQUIRE(2 == map.size());
 }
 
-TEST_CASE("hashmap__put_and_size") {
+TEST_CASE("hashmap__put_and_size")
+{
     test_put_and_size<0x1>();
     test_put_and_size<0x2>();
     test_put_and_size<0x3>();
     test_put_and_size<0x10000>();
 }
 
-template<std::size_t Buckets>
-void test_put_and_get()
+template <std::size_t Buckets>
+void
+test_put_and_get()
 {
     gem::hashmap<int, Buckets> map;
     REQUIRE_FALSE(map.get("foo"));
@@ -57,15 +66,17 @@ void test_put_and_get()
     REQUIRE(44 == *map.get("bar"));
 }
 
-TEST_CASE("hashmap__put_and_get") {
+TEST_CASE("hashmap__put_and_get")
+{
     test_put_and_get<0x1>();
     test_put_and_get<0x2>();
     test_put_and_get<0x3>();
     test_put_and_get<0x10000>();
 }
 
-template<std::size_t Buckets>
-void test_remove()
+template <std::size_t Buckets>
+void
+test_remove()
 {
     gem::hashmap<int, Buckets> map;
     REQUIRE_FALSE(map.remove("foo"));
@@ -80,15 +91,17 @@ void test_remove()
     REQUIRE(0 == map.size());
 }
 
-TEST_CASE("hashmap__remove") {
+TEST_CASE("hashmap__remove")
+{
     test_remove<0x1>();
     test_remove<0x2>();
     test_remove<0x3>();
     test_remove<0x10000>();
 }
 
-template<std::size_t Buckets>
-void test_copy_constructor()
+template <std::size_t Buckets>
+void
+test_copy_constructor()
 {
     gem::hashmap<int, Buckets> map;
     map.put("foo", 42);
@@ -101,15 +114,17 @@ void test_copy_constructor()
     REQUIRE(43 == *map2.get("bar"));
 }
 
-TEST_CASE("hashmap__copy_constructor") {
+TEST_CASE("hashmap__copy_constructor")
+{
     test_copy_constructor<0x1>();
     test_copy_constructor<0x2>();
     test_copy_constructor<0x3>();
     test_copy_constructor<0x10000>();
 }
 
-template<std::size_t Buckets>
-void test_copy_assignment()
+template <std::size_t Buckets>
+void
+test_copy_assignment()
 {
     gem::hashmap<int, Buckets> map;
     map.put("foo", 42);
@@ -125,15 +140,17 @@ void test_copy_assignment()
     REQUIRE(43 == *map2.get("bar"));
 }
 
-TEST_CASE("hashmap__copy_assignment") {
+TEST_CASE("hashmap__copy_assignment")
+{
     test_copy_assignment<0x1>();
     test_copy_assignment<0x2>();
     test_copy_assignment<0x3>();
     test_copy_assignment<0x10000>();
 }
 
-template<std::size_t Buckets>
-void test_move_constructor()
+template <std::size_t Buckets>
+void
+test_move_constructor()
 {
     gem::hashmap<int, Buckets> map;
     map.put("foo", 42);
@@ -147,15 +164,17 @@ void test_move_constructor()
     REQUIRE_FALSE(map.get("bar"));
 }
 
-TEST_CASE("hashmap__move_constructor") {
+TEST_CASE("hashmap__move_constructor")
+{
     test_move_constructor<0x1>();
     test_move_constructor<0x2>();
     test_move_constructor<0x3>();
     test_move_constructor<0x10000>();
 }
 
-template<std::size_t Buckets>
-void test_move_assignment()
+template <std::size_t Buckets>
+void
+test_move_assignment()
 {
     gem::hashmap<int, Buckets> map;
     map.put("foo", 42);
@@ -170,7 +189,8 @@ void test_move_assignment()
     REQUIRE_FALSE(map.get("bar"));
 }
 
-TEST_CASE("hashmap__move_assignment") {
+TEST_CASE("hashmap__move_assignment")
+{
     test_move_assignment<0x1>();
     test_move_assignment<0x2>();
     test_move_assignment<0x3>();

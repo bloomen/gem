@@ -13,9 +13,8 @@ template <typename ValueType, std::size_t Capacity>
 class circular_buffer
 {
 public:
-    static_assert(
-        std::is_default_constructible_v<ValueType>,
-        "ValueType must be default constructible");
+    static_assert(std::is_default_constructible_v<ValueType>,
+                  "ValueType must be default constructible");
     static_assert(Capacity >= 1, "Capacity must be at least 1");
 
     using container_type = circular_buffer;
@@ -41,8 +40,9 @@ public:
 
     // Equals operator
     bool
-    operator==(const circular_buffer& other) const noexcept(
-        noexcept(std::declval<value_type>() == std::declval<value_type>()))
+    operator==(const circular_buffer& other) const
+        noexcept(noexcept(std::declval<value_type>() ==
+                          std::declval<value_type>()))
     {
         if (this != &other)
         {
@@ -68,8 +68,9 @@ public:
 
     // Not-equals operator
     bool
-    operator!=(const circular_buffer& other) const noexcept(
-        noexcept(std::declval<value_type>() == std::declval<value_type>()))
+    operator!=(const circular_buffer& other) const
+        noexcept(noexcept(std::declval<value_type>() ==
+                          std::declval<value_type>()))
     {
         return !(*this == other);
     }
@@ -77,10 +78,9 @@ public:
     // Pushes a new value onto the end of the buffer. If that exceeds the
     // capacity of the buffer then the oldest value gets dropped (the one at the
     // front).
-    template <
-        typename T,
-        typename =
-            std::enable_if_t<std::is_same_v<std::decay_t<T>, value_type>>>
+    template <typename T,
+              typename =
+                  std::enable_if_t<std::is_same_v<std::decay_t<T>, value_type>>>
     void
     push(T&& value)
     {
@@ -203,15 +203,13 @@ private:
 namespace std
 {
 
-template <
-    typename ValueType,
-    std::size_t Capacity,
-    typename = std::enable_if_t<std::is_swappable_v<ValueType>>>
+template <typename ValueType,
+          std::size_t Capacity,
+          typename = std::enable_if_t<std::is_swappable_v<ValueType>>>
 void
-swap(
-    gem::circular_buffer<ValueType, Capacity>& lhs,
-    gem::circular_buffer<ValueType, Capacity>&
-        rhs) noexcept(std::is_nothrow_swappable_v<ValueType>)
+swap(gem::circular_buffer<ValueType, Capacity>& lhs,
+     gem::circular_buffer<ValueType, Capacity>&
+         rhs) noexcept(std::is_nothrow_swappable_v<ValueType>)
 {
     lhs.swap(rhs);
 }

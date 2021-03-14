@@ -8,7 +8,8 @@ struct Foo
     int arg1;
     double arg2;
     bool called;
-    void method(int x, double y)
+    void
+    method(int x, double y)
     {
         arg1 = x;
         arg2 = y;
@@ -16,7 +17,8 @@ struct Foo
     }
 };
 
-TEST_CASE("command_queue__happy_path") {
+TEST_CASE("command_queue__happy_path")
+{
     command_queue q;
     Foo foo;
     q.push(&foo, &Foo::method, 42, 13.0);

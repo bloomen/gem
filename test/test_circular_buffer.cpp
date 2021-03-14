@@ -3,7 +3,8 @@
 
 using gem::circular_buffer;
 
-TEST_CASE("circular_buffer__buffer_of_capacity_one_no_elements") {
+TEST_CASE("circular_buffer__buffer_of_capacity_one_no_elements")
+{
     constexpr int capacity = 1;
     circular_buffer<double, capacity> buffer;
     static_assert(capacity == buffer.capacity(), "");
@@ -11,7 +12,8 @@ TEST_CASE("circular_buffer__buffer_of_capacity_one_no_elements") {
     REQUIRE(buffer.empty());
 }
 
-TEST_CASE("circular_buffer__buffer_of_capacity_one_with_one_added") {
+TEST_CASE("circular_buffer__buffer_of_capacity_one_with_one_added")
+{
     constexpr int capacity = 1;
     circular_buffer<double, capacity> buffer;
     static_assert(capacity == buffer.capacity(), "");
@@ -21,7 +23,8 @@ TEST_CASE("circular_buffer__buffer_of_capacity_one_with_one_added") {
     REQUIRE(1 == buffer.size());
 }
 
-TEST_CASE("circular_buffer__buffer_of_capacity_one_with_two_added") {
+TEST_CASE("circular_buffer__buffer_of_capacity_one_with_two_added")
+{
     constexpr int capacity = 1;
     circular_buffer<double, capacity> buffer;
     static_assert(capacity == buffer.capacity(), "");
@@ -35,7 +38,8 @@ TEST_CASE("circular_buffer__buffer_of_capacity_one_with_two_added") {
     REQUIRE(1 == buffer.size());
 }
 
-TEST_CASE("circular_buffer__buffer_of_capacity_two_with_two_added") {
+TEST_CASE("circular_buffer__buffer_of_capacity_two_with_two_added")
+{
     constexpr int capacity = 2;
     circular_buffer<double, capacity> buffer;
     static_assert(capacity == buffer.capacity(), "");
@@ -49,7 +53,8 @@ TEST_CASE("circular_buffer__buffer_of_capacity_two_with_two_added") {
     REQUIRE(2 == buffer.size());
 }
 
-TEST_CASE("circular_buffer__buffer_of_capacity_two_with_three_added") {
+TEST_CASE("circular_buffer__buffer_of_capacity_two_with_three_added")
+{
     constexpr int capacity = 2;
     circular_buffer<double, capacity> buffer;
     static_assert(capacity == buffer.capacity(), "");
@@ -67,7 +72,8 @@ TEST_CASE("circular_buffer__buffer_of_capacity_two_with_three_added") {
     REQUIRE(2 == buffer.size());
 }
 
-TEST_CASE("circular_buffer__buffer_of_capacity_one_pop") {
+TEST_CASE("circular_buffer__buffer_of_capacity_one_pop")
+{
     circular_buffer<double, 1> buffer;
     const double value1 = 42;
     const double value2 = 46;
@@ -82,7 +88,8 @@ TEST_CASE("circular_buffer__buffer_of_capacity_one_pop") {
     REQUIRE(value1 == buffer.front());
 }
 
-TEST_CASE("circular_buffer__buffer_of_capacity_two_pop") {
+TEST_CASE("circular_buffer__buffer_of_capacity_two_pop")
+{
     circular_buffer<double, 2> buffer;
     REQUIRE(buffer.empty());
     REQUIRE_FALSE(buffer.full());
@@ -103,7 +110,8 @@ TEST_CASE("circular_buffer__buffer_of_capacity_two_pop") {
     REQUIRE_FALSE(buffer.full());
 }
 
-TEST_CASE("circular_buffer__buffer_of_capacity_three_with_push_overload") {
+TEST_CASE("circular_buffer__buffer_of_capacity_three_with_push_overload")
+{
     circular_buffer<double, 3> buffer;
     const double value1 = 42;
     const double value2 = 46;
@@ -135,7 +143,8 @@ TEST_CASE("circular_buffer__buffer_of_capacity_three_with_push_overload") {
     REQUIRE(value8 == buffer.front());
 }
 
-TEST_CASE("circular_buffer__buffer_of_capacity_three_push_and_pop") {
+TEST_CASE("circular_buffer__buffer_of_capacity_three_push_and_pop")
+{
     circular_buffer<double, 3> buffer;
     const double value1 = 42;
     const double value2 = 46;
@@ -161,7 +170,8 @@ TEST_CASE("circular_buffer__buffer_of_capacity_three_push_and_pop") {
     REQUIRE(value2 == buffer.front());
 }
 
-TEST_CASE("circular_buffer__buffer_of_capacity_three_push_and_pop_guanpath") {
+TEST_CASE("circular_buffer__buffer_of_capacity_three_push_and_pop_guanpath")
+{
     circular_buffer<double, 3> buffer;
     const double value1 = 1;
     const double value2 = 2;
@@ -201,7 +211,8 @@ TEST_CASE("circular_buffer__buffer_of_capacity_three_push_and_pop_guanpath") {
     REQUIRE(value10 == buffer.front());
 }
 
-TEST_CASE("circular_buffer__swap") {
+TEST_CASE("circular_buffer__swap")
+{
     circular_buffer<int, 3> buffer1;
     buffer1.push(1);
     buffer1.push(2);
@@ -214,14 +225,20 @@ TEST_CASE("circular_buffer__swap") {
     std::swap(buffer1, buffer2);
     REQUIRE(2 == buffer1.size());
     REQUIRE(3 == buffer2.size());
-    REQUIRE(41 == buffer1.front()); buffer1.pop();
-    REQUIRE(42 == buffer1.front()); buffer1.pop();
-    REQUIRE(1 == buffer2.front()); buffer2.pop();
-    REQUIRE(2 == buffer2.front()); buffer2.pop();
-    REQUIRE(3 == buffer2.front()); buffer2.pop();
+    REQUIRE(41 == buffer1.front());
+    buffer1.pop();
+    REQUIRE(42 == buffer1.front());
+    buffer1.pop();
+    REQUIRE(1 == buffer2.front());
+    buffer2.pop();
+    REQUIRE(2 == buffer2.front());
+    buffer2.pop();
+    REQUIRE(3 == buffer2.front());
+    buffer2.pop();
 }
 
-TEST_CASE("circular_buffer__is_equal") {
+TEST_CASE("circular_buffer__is_equal")
+{
     circular_buffer<int, 3> buffer1;
     buffer1.push(1);
     buffer1.push(2);
@@ -232,7 +249,8 @@ TEST_CASE("circular_buffer__is_equal") {
     REQUIRE(buffer2 == buffer2);
 }
 
-TEST_CASE("circular_buffer__is_not_equal") {
+TEST_CASE("circular_buffer__is_not_equal")
+{
     circular_buffer<int, 3> buffer1;
     buffer1.push(1);
     buffer1.push(2);
@@ -246,7 +264,8 @@ TEST_CASE("circular_buffer__is_not_equal") {
     REQUIRE(buffer2 != buffer3);
 }
 
-TEST_CASE("circular_buffer__front_non_const_overload") {
+TEST_CASE("circular_buffer__front_non_const_overload")
+{
     circular_buffer<int, 3> buffer1;
     buffer1.push(1);
     REQUIRE(1 == buffer1.front());

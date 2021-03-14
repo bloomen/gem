@@ -1,14 +1,15 @@
 #pragma once
+#include "datastore.h"
+#include <array>
 #include <optional>
 #include <string>
-#include <array>
-#include "datastore.h"
 
+namespace gem
+{
+namespace detail
+{
 
-namespace gem {
-namespace detail {
-
-template<typename ValueType>
+template <typename ValueType>
 struct node
 {
     std::optional<gem::ds::value<ValueType>> value;
@@ -16,20 +17,23 @@ struct node
 
     node() = default;
 
-    template<typename T, typename = std::enable_if_t<std::is_same_v<std::decay_t<T>, ValueType>>>
+    template <
+        typename T,
+        typename = std::enable_if_t<std::is_same_v<std::decay_t<T>, ValueType>>>
     node(std::string key, T&& value)
-    : value{std::make_optional<gem::ds::value<ValueType>>(std::move(key), std::forward<T>(value))}
-    {}
+        : value{std::make_optional<gem::ds::value<ValueType>>(
+              std::move(key),
+              std::forward<T>(value))}
+    {
+    }
 };
 
-} // detail
+} // namespace detail
 
-
-template<typename ValueType, std::size_t Buckets=0x10000>
+template <typename ValueType, std::size_t Buckets = 0x10000>
 class hashmap
 {
 public:
-
     static_assert(Buckets > 0, "Buckets must be larger than zero");
 
     using value_type = ValueType;
@@ -49,7 +53,8 @@ public:
     hashmap&
     operator=(const hashmap& other)
     {
-        if (this != &other) {
+        if (this != &other)
+        {
             destroy();
             reset();
             copy_from(other);
@@ -65,7 +70,8 @@ public:
     hashmap&
     operator=(hashmap&& other)
     {
-        if (this != &other) {
+        if (this != &other)
+        {
             destroy();
             reset();
             move_from(std::move(other));
@@ -79,30 +85,38 @@ public:
         return size_;
     }
 
-    template<typename T, typename = std::enable_if_t<std::is_same_v<std::decay_t<T>, value_type>>>
+    template <typename T,
+              typename =
+                  std::enable_if_t<std::is_same_v<std::decay_t<T>, value_type>>>
     std::optional<value_type>
     put(std::string key, T&& value)
     {
         auto& b = bucket(key);
-        if (!b) {
+        if (!b)
+        {
             b = new gem::detail::node<value_type>{}; // creating head
-            b->next = new gem::detail::node<value_type>{std::move(key), std::forward<T>(value)};
+            b->next = new gem::detail::node<value_type>{std::move(key),
+                                                        std::forward<T>(value)};
             size_++;
             return {};
         }
         auto n = b->next;
-        for (;;) {
-            if (n->value->name() == key) {
+        for (;;)
+        {
+            if (n->value->name() == key)
+            {
                 auto old_value = n->value->get();
                 n->value->set(std::forward<T>(value));
                 return old_value;
             }
-            if (!n->next) {
+            if (!n->next)
+            {
                 break;
             }
             n = n->next;
         };
-        n->next = new gem::detail::node<value_type>{std::move(key), std::forward<T>(value)};
+        n->next = new gem::detail::node<value_type>{std::move(key),
+                                                    std::forward<T>(value)};
         size_++;
         return {};
     }
@@ -111,12 +125,15 @@ public:
     get(const std::string& key) const
     {
         auto b = bucket(key);
-        if (!b) {
+        if (!b)
+        {
             return empty_;
         }
         b = b->next;
-        while (b) {
-            if (b->value->name() == key) {
+        while (b)
+        {
+            if (b->value->name() == key)
+            {
                 return b->value->get();
             }
             b = b->next;
@@ -128,15 +145,19 @@ public:
     remove(const std::string& key)
     {
         auto& b = bucket(key);
-        if (!b) {
+        if (!b)
+        {
             return {};
         }
         auto p = b;
         auto n = b->next;
-        while (n) {
-            if (n->value->name() == key) {
+        while (n)
+        {
+            if (n->value->name() == key)
+            {
                 auto old_value = n->value->get();
-                if (n == b->next && !n->next) {
+                if (n == b->next && !n->next)
+                {
                     // deleting head
                     delete b;
                     b = nullptr;
@@ -153,14 +174,16 @@ public:
     }
 
 private:
-
     void
     copy_from(const hashmap& other)
     {
-        for (auto b : other.buckets_) {
-            if (b) {
+        for (auto b : other.buckets_)
+        {
+            if (b)
+            {
                 b = b->next;
-                while (b) {
+                while (b)
+                {
                     put(b->value->name(), *b->value->get());
                     b = b->next;
                 }
@@ -178,8 +201,10 @@ private:
     void
     destroy()
     {
-        for (auto b : buckets_) {
-            while (b) {
+        for (auto b : buckets_)
+        {
+            while (b)
+            {
                 auto trash = b;
                 b = b->next;
                 delete trash;
@@ -205,7 +230,7 @@ private:
     std::size_t
     index(const std::string& key) const
     {
-        return std::hash<std::string>{}(key) & buckets_minus_one;
+        return std::hash<std::string>{}(key)&buckets_minus_one;
     }
 
     std::optional<value_type> empty_;
@@ -213,5 +238,4 @@ private:
     std::size_t size_ = 0;
 };
 
-
-} // gem
+} // namespace gem
